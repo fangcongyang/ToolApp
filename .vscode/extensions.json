@@ -1,0 +1,6 @@
+{
+  "recommendations": [
+    "vue.volar",
+    "tauri-apps.tauri-vscode"
+  ]
+}
