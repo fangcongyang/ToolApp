@@ -4,9 +4,9 @@
       <div style="flex: 0.1;"></div>
       <a-tabs style="flex: 0.8;" :tabBarGutter="30" v-model:activeKey="activeKey" @change="tabChange">
         <a-tab-pane key="json" tab="JSON格式化">
-          <div style="display: flex; flex-direction: column; justify-items: center; justify-content: space-between; height: 7.5rem;">
+          <div style="display: flex; flex-direction: column; justify-items: center; justify-content: space-between; height: 6.7rem;">
             <a-space :size="spaceSize">
-              <a-textarea style="width: 9rem;height: 3rem;" v-model:value="json.oldValue" placeholder="放入json原文" allow-clear />
+              <a-textarea style="width: 9rem;height: 2.5rem;" v-model:value="json.oldValue" placeholder="放入json原文" allow-clear />
             </a-space>
             <div style="display: flex; flex-direction: column; justify-content: space-between; height: 1rem;">
               <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center;">

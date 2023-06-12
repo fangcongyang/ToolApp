@@ -72,7 +72,7 @@ pub fn init() {
         // 创建一个 Command 对象，传入 exe 文件的路径和可选的参数
         let mut path = utils::app_install_root();
         path.pop();
-        let server_close = Command::new(path.join("expand").join("ServerClose.exe"))
+        let server_close = Command::new(path.join("expand").join("serverclose.exe"))
           .args(["webssh.exe"])
           .output()
           .expect("执行关闭应用线程命令!");

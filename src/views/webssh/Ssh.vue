@@ -151,17 +151,10 @@
   })
 </script>
 <style lang="css">
-
-  html, body {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-  }
-  
   .ssh-container {
     overflow: hidden;
     width: 100%;
-    height: 100%;
+    height: 100% !important;
     border-radius: 4px;
     background: rgb(24, 29, 40);
     padding: 0px;

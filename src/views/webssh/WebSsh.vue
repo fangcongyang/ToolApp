@@ -1,5 +1,6 @@
 <template>
-    <a-menu v-model:selectedKeys="current" mode="horizontal" @click="handleClick" >
+  <div style="display: flex; flex-direction: column;height: 100vh;">
+    <a-menu style="height: 40px;" v-model:selectedKeys="current" mode="horizontal" @click="handleClick" >
       <a-sub-menu>
         <template #icon>
           <setting-outlined />
@@ -17,7 +18,7 @@
       </a-menu-item>
     </a-menu>
     <a-tabs
-      style="margin-top: 0.2rem;"
+      style="flex: 1;padding-top: 0.1rem;"
       type="editable-card"
       v-model:value="activeKey"
       @edit="onEdit"
@@ -38,11 +39,12 @@
       width="11rem"
       title="站点管理"
       v-model:visible="siteShow"
+      :centered="true"
       :footer="null"
       :afterClose="selectSshMainDto"
     >
       <a-card title="新增站点">
-        <a-form :labelCol="{span: 6,}" :model="serverInfoForm">
+        <a-form :labelCol="{span: 7,}" :model="serverInfoForm">
           <a-row :gutter="24">
             <a-col :span="8">
               <a-form-item label="IP地址" required>
@@ -86,7 +88,8 @@
         </a-table>
       </a-card>
     </a-modal>
-  </template>
+  </div>
+</template>
   
 <script lang="ts">
   import { defineComponent, toRefs, ref, reactive, onMounted, UnwrapRef, toRaw  } from 'vue';
@@ -275,23 +278,8 @@
   //
   </script>
 <style lang="css">
-  body {
-    margin: 0;
-    padding: 0;
-  }
-  
-  .ssh-container {
-    overflow: hidden;
-    height: 100vh;
-    border-radius: 4px;
-    background: rgb(24, 29, 40);
-    padding: 0px;
-    color: rgb(255, 255, 255);
-  
-  }
-  .ssh-container .xterm-scroll-area::-webkit-scrollbar-thumb {
-      background-color: #b7c4d1;
-      /* 滚动条的背景颜色 */
+  .ant-tabs-content {
+    height: 100% !important;
   }
 </style>
   
