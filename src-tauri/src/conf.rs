@@ -8,8 +8,6 @@ use tauri::TitleBarStyle;
 
 use crate::utils::{app_root, create_file, exists};
 
-pub const APP_WEBSITE: &str = "https://lencx.github.io/app/";
-pub const NOFWL_APP: &str = "https://github.com/lencx/nofwl";
 pub const BUY_COFFEE: &str = "https://www.buymeacoffee.com/lencx";
 
 pub const APP_CONF_PATH: &str = "complex.conf.json";
@@ -77,8 +75,8 @@ impl AppConf {
       stay_on_top: false,
       main_dashboard: true,
       tray_dashboard: false,
-      main_width: 800.0,
-      main_height: 600.0,
+      main_width: 960.0,
+      main_height: 700.0,
       tray_width: 360.0,
       tray_height: 540.0,
       main_origin: CHATGPT_URL.into(),

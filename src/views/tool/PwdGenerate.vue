@@ -1,10 +1,10 @@
 <template>
-  <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; width: 100%; height: 6rem;">
+  <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; width: 100%; height: 8rem;">
     <div style="display: flex; flex-direction: row; width: 100%;">
       <div style="flex: 0.1;"></div>
       <a-tabs style="flex: 0.8;" :tabBarGutter="30" v-model:activeKey="activeKey" @change="tabChange">
         <a-tab-pane key="pwdGenerate" tab="密码生成器">
-          <div style="display: flex; flex-direction: column; justify-items: center; justify-content: space-between; height: 1.98rem;">
+          <div style="display: flex; flex-direction: column; justify-items: center; justify-content: space-between; height: 2rem;">
             <a-space :size="spaceSize">
               <span style=" font-weight: bold;">所用字符：</span>
               <a-checkbox-group v-model:value="pwdData.pwdCheckedList" :options="pwdOptions" />
@@ -12,12 +12,12 @@
             <a-space :size="spaceSize">
               <span style="font-weight: bold;">密码长度：</span>
               <a-input-number v-model:value="pwdData.pwdLength" :min="6" :max="50" placeholder="请输入密码长度"
-                style="width: 6rem; " />
+                style="width: 9rem; " />
             </a-space>
             <a-space :size="spaceSize">
               <span style="font-weight: bold;">密码数量：</span>
               <a-input-number v-model:value="pwdData.pwdSize" :min="1" :max="50" placeholder="请输入密码数量"
-              style="width: 6rem; "/>
+              style="width: 9rem; "/>
             </a-space>
             <div style="display: flex;">
               <div style="display: flex; justify-content: space-between; width: 3.5rem;">
@@ -45,7 +45,7 @@
             <a-space :size="spaceSize">
               <span style="font-weight: bold;">生成UUID个数：</span>
               <a-input-number v-model:value="uuidData.uuidSize" :min="1" :max="50" placeholder="请输入生成UUID个数"
-                style="width: 6rem;" />
+                style="width: 8.5rem;" />
             </a-space>
             
             <div style="display: flex;">
@@ -59,10 +59,10 @@
         </a-tab-pane>
       </a-tabs>
     </div>
-    <div style="display: flex; width: 100%; height: 3rem;">
+    <div style="display: flex; width: 100%; height: 5rem;">
       <div style="flex: 0.1;"></div>
       <div style="flex: 0.8;">
-        <Codemirror v-model="cmData" placeholder="Code gose here..." :style="{ height: '3rem',  width: '8rem'}"
+        <Codemirror v-model="cmData" placeholder="Code gose here..." :style="{ height: '5rem',  width: '10.1rem'}"
         :disabled="true"  
         :autofocus="true"
           :indent-with-tab="true"

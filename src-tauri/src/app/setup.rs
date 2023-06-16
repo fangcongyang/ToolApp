@@ -59,11 +59,14 @@ pub fn init(app: &mut App) -> std::result::Result<(), Box<dyn std::error::Error>
       };
       info!("main_window: {}", link);
       let mut main_win = WindowBuilder::new(&app, "main", WindowUrl::App(link.into()))
-        .title("tauri-app")
+        .title("complex")
         .resizable(true)
         .fullscreen(false)
         .inner_size(app_conf2.main_width, app_conf2.main_height)
         .theme(Some(theme))
+        .center()
+        .decorations(false)
+        .transparent(true)
         .always_on_top(app_conf2.stay_on_top)
         .initialization_script(&utils::user_script())
         .initialization_script(include_str!("../scripts/core.js"))

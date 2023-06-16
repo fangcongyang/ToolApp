@@ -1,5 +1,6 @@
 use crate::{
   app::window,
+  app::webssh,
   conf::{self, AppConf},
   utils,
 };
@@ -16,15 +17,6 @@ use tauri::AboutMetadata;
 pub fn init() -> Menu {
   let app_conf = AppConf::read();
   let name = "系统";
-  
-  let stay_on_top =
-    CustomMenuItem::new("stay_on_top".to_string(), "窗口置顶").accelerator("CmdOrCtrl+T");
-  let stay_on_top_menu = if app_conf.stay_on_top {
-    stay_on_top.selected()
-  } else {
-    stay_on_top
-  };
-
   let theme_light = CustomMenuItem::new("theme_light".to_string(), "明亮");
   let theme_dark = CustomMenuItem::new("theme_dark".to_string(), "暗黑");
   let theme_system = CustomMenuItem::new("theme_system".to_string(), "系统");
@@ -80,18 +72,10 @@ pub fn init() -> Menu {
               // })
       )
       .into(),
-      CustomMenuItem::new("go_conf".to_string(), "打开配置")
-        .accelerator("CmdOrCtrl+Shift+G")
-        .into(),
-      CustomMenuItem::new("clear_conf".to_string(), "清除配置").into(),
-      stay_on_top_menu.into(),
       MenuItem::Separator.into(),
       CustomMenuItem::new("restart".to_string(), "重启")
         .accelerator("CmdOrCtrl+Shift+R")
         .into(),
-      MenuItem::Services.into(),
-      MenuItem::HideOthers.into(),
-      MenuItem::ShowAll.into()
     ]),
   );
   // let _update_disable = CustomMenuItem::new("update_disable".to_string(), "Disable");
@@ -110,17 +94,7 @@ pub fn init() -> Menu {
       .add_item(
         CustomMenuItem::new("scroll_bottom".to_string(), "滚动到底部")
           .accelerator("CmdOrCtrl+Down"),
-      )
-      .add_native_item(MenuItem::Separator)
-      .add_item(
-        CustomMenuItem::new("reload".to_string(), "刷新").accelerator("CmdOrCtrl+R"),
       ),
-  );
-
-  let window_menu = Submenu::new(
-    "窗口",
-    Menu::new()
-      .add_native_item(MenuItem::Minimize)
   );
 
   let help_menu = Submenu::new(
@@ -132,13 +106,12 @@ pub fn init() -> Menu {
       CustomMenuItem::new("about".to_string(), "关于Tauri").into(),
       CustomMenuItem::new("check_update".to_string(), "检查更新").into(),
       CustomMenuItem::new("dev_tools".to_string(), "开发者工具")
-      .accelerator("CmdOrCtrl+Shift+I").into()
+      .accelerator("f12").into()
     ]),
   );
 
   Menu::new()
     .add_submenu(app_menu)
-    .add_submenu(window_menu)
     .add_submenu(view_menu)
     .add_submenu(help_menu)
 }
@@ -153,31 +126,10 @@ pub fn menu_handler(event: WindowMenuEvent<tauri::Wry>) {
 
   match menu_id {
     // App
-    "about" => {
-      let tauri_conf = utils::get_tauri_conf().unwrap();
-      tauri::api::dialog::message(
-        app.get_window("main").as_ref(),
-        "tauri app",
-        format!("Version {}", tauri_conf.package.version.unwrap()),
-      );
-    }
-    "check_update" => {
-      // utils::run_check_update(app, false, None);
-    }
     // Preferences
     "control_center" => window::cmd::control_window(app),
     "restart" => tauri::api::process::restart(&app.env()),
     "inject_script" => open(&app, script_path),
-    "go_conf" => utils::open_file(utils::app_root()),
-    "clear_conf" => utils::clear_conf(&app),
-    "app_website" => window::cmd::wa_window(
-      app,
-      "app_website".into(),
-      "ChatGPT User's Guide".into(),
-      conf::APP_WEBSITE.into(),
-      None,
-    ),
-    "nofwl" => open(&app, conf::NOFWL_APP.to_string()),
     "buy_coffee" => open(&app, conf::BUY_COFFEE.to_string()),
     "popup_search" => {
       let app_conf = AppConf::read();
@@ -273,20 +225,8 @@ pub fn menu_handler(event: WindowMenuEvent<tauri::Wry>) {
         .amend(serde_json::json!({ "auto_update": auto_update }))
         .write();
     }
-    "stay_on_top" => {
-      let app_conf = AppConf::read();
-      let stay_on_top = !app_conf.stay_on_top;
-      menu_handle
-        .get_item(menu_id)
-        .set_selected(stay_on_top)
-        .unwrap();
-      win.set_always_on_top(stay_on_top).unwrap();
-      app_conf
-        .amend(serde_json::json!({ "stay_on_top": stay_on_top }))
-        .write();
-    }
-    // View
-    "reload" => win.eval("window.location.reload()").unwrap(),
+
+    // 页面
     "go_back" => win.eval("window.history.go(-1)").unwrap(),
     "go_forward" => win.eval("window.history.go(1)").unwrap(),
     "scroll_top" => win
@@ -306,7 +246,18 @@ pub fn menu_handler(event: WindowMenuEvent<tauri::Wry>) {
           behavior: "smooth"})"#,
       )
       .unwrap(),
-    // Help
+    // 帮助
+    "about" => {
+      let tauri_conf = utils::get_tauri_conf().unwrap();
+      tauri::api::dialog::message(
+        app.get_window("main").as_ref(),
+        "tauri app",
+        format!("Version {}", tauri_conf.package.version.unwrap()),
+      );
+    }
+    "check_update" => {
+      // utils::run_check_update(app, false, None);
+    }
     "dev_tools" => {
       #[cfg(debug_assertions)]
       win.open_devtools();
@@ -338,7 +289,7 @@ pub fn tray_menu() -> SystemTray {
           "hide_dock_icon".to_string(),
           "Hide Dock Icon",
         ))
-        .add_item(CustomMenuItem::new("show_core".to_string(), "Show Window"));
+        .add_item(CustomMenuItem::new("show_main".to_string(), "显示"));
     }
 
     SystemTray::new().with_menu(
@@ -353,7 +304,7 @@ pub fn tray_menu() -> SystemTray {
           "control_center".to_string(),
           "控制中心",
         ))
-        .add_item(CustomMenuItem::new("show_core".to_string(), "显示"))
+        .add_item(CustomMenuItem::new("show_main".to_string(), "显示"))
         .add_native_item(SystemTrayMenuItem::Separator)
         .add_item(CustomMenuItem::new("quit".to_string(), "退出")),
     )
@@ -375,7 +326,7 @@ pub fn tray_handler(handle: &AppHandle, event: SystemTrayEvent) {
       let app_conf = AppConf::read();
 
       if !app_conf.hide_dock_icon {
-        if let Some(core_win) = handle.get_window("core") {
+        if let Some(core_win) = handle.get_window("main") {
           if core_win.is_visible().unwrap() {
             core_win.hide().unwrap();
           } else {
@@ -413,17 +364,23 @@ pub fn tray_handler(handle: &AppHandle, event: SystemTrayEvent) {
             .restart(app);
         }
       }
-      "show_core" => {
-        if let Some(core_win) = app.get_window("core") {
+      "show_main" => {
+        if let Some(core_win) = app.get_window("main") {
           let tray_win = app.get_window("tray").unwrap();
           if !core_win.is_visible().unwrap() {
             core_win.show().unwrap();
-            core_win.set_focus().unwrap();
             tray_win.hide().unwrap();
           }
+          if core_win.is_minimized().unwrap() {
+            core_win.unminimize().unwrap()
+          }
+          core_win.set_focus().unwrap();
         };
       }
-      "quit" => std::process::exit(0),
+      "quit" => {
+        webssh::close_webssh();
+        std::process::exit(0);
+      }
       _ => (),
     },
     _ => (),

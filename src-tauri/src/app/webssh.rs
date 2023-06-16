@@ -72,21 +72,7 @@ pub fn init() {
         // 创建一个 Command 对象，传入 exe 文件的路径和可选的参数
         let mut path = utils::app_install_root();
         path.pop();
-        let server_close = Command::new(path.join("expand").join("serverclose.exe"))
-          .args(["webssh.exe"])
-          .output()
-          .expect("执行关闭应用线程命令!");
-        // 检查子进程是否成功
-        if server_close.status.success() {
-            // 打印子进程的标准输出
-            let s = String::from_utf8_lossy(&server_close.stdout);
-            println!("关闭应用成功:{}", s);
-        } else {
-            // 打印子进程的标准错误
-            let s = String::from_utf8_lossy(&server_close.stderr);
-            println!("关闭应用失败:{}", s);
-        }
-
+        
         let output = Command::new(path.join("expand").join("webssh.exe"))
           .output()
           .expect("启动webssh后端失败!");
@@ -99,16 +85,48 @@ pub fn init() {
         } else {
             // 打印子进程的标准错误
             let s = String::from_utf8_lossy(&output.stderr);
-            println!("启动webssh后端失败:{}", s);
+            println!("关闭webssh后端:{}", s);
         }
       });
     let mut path = utils::app_install_root();
     path.pop();
     let output = path.join("data").join("tauri.db");
     let webssh_db = Connection::open(output).unwrap();
+    // 在数据库中创建两个表
+    webssh_db.execute(
+        "create table if not exists ssh_main (
+            id TEXT(32) NOT NULL  , --主键id
+            ip_addr TEXT(15) NOT NULL  , --ip地址
+            port TEXT(5) NOT NULL  , --端口
+            username TEXT(50) NOT NULL  , --用户名
+            password TEXT(100) NOT NULL  , --密码
+            auth_model INTEGER(2) NOT NULL  DEFAULT 1, --连接模式;1 密码模式 2 证书模式
+            PRIMARY KEY (id)
+        )",
+        (),
+    ).unwrap();
     CACHE.lock().unwrap().put(DBNAME.into(), webssh_db);
 }
 
+pub fn close_webssh() {
+    // 创建一个 Command 对象，传入 exe 文件的路径和可选的参数
+    let mut path = utils::app_install_root();
+    path.pop();
+    let server_close = Command::new(path.join("expand").join("serverclose.exe"))
+    .args(["webssh.exe"])
+    .output()
+    .expect("执行关闭应用线程命令!");
+    // 检查子进程是否成功
+    if server_close.status.success() {
+        // 打印子进程的标准输出
+        let s = String::from_utf8_lossy(&server_close.stdout);
+        println!("关闭应用成功:{}", s);
+    } else {
+        // 打印子进程的标准错误
+        let s = String::from_utf8_lossy(&server_close.stderr);
+        println!("关闭应用失败:{}", s);
+    }
+}
 
 pub mod cmd {
     use super::*;
@@ -163,12 +181,12 @@ pub mod cmd {
         let mut ssh_list = Vec::new();
         for ssh in sshs {
             let s = ssh.unwrap();
-            let mut hostAddr = s.ipAddr.to_string();
-            hostAddr.push(':');
-            hostAddr.push_str(&s.port);
+            let mut host_addr = s.ipAddr.to_string();
+            host_addr.push(':');
+            host_addr.push_str(&s.port);
             let ssh_dto = SshMainDto {
                 id: s.id,
-                hostAddr: hostAddr,
+                hostAddr: host_addr,
                 username: s.username,
                 password: s.password,
                 authModel: s.authModel,
@@ -206,5 +224,10 @@ pub mod cmd {
         let mut binding = CACHE.lock().unwrap();
         let conn = binding.get(DBNAME.into()).unwrap();
         conn.execute("DELETE FROM ssh_main WHERE id = ?1", params![&id]).unwrap();
+    }
+
+    #[command]
+    pub fn close_webssh() {
+        super::close_webssh();
     }
 }

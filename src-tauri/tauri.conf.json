@@ -7,27 +7,21 @@
     "withGlobalTauri": true
   },
   "package": {
-    "productName": "tauri-app",
-    "version": "0.0.0"
+    "productName": "complex",
+    "version": "0.0.1"
   },
   "tauri": {
     "allowlist": {
       "all": true,
 			"fs": {
-				"all": true,
-				"copyFile": true,
-				"createDir": true,
-				"readDir": true,
-				"removeDir": true,
-				"removeFile": true,
-				"renameFile": true,
-				"writeFile": true
+				"all": true
 			},
 			"protocol": {
-				"all": true,
-				"asset": true,
-				"assetScope": ["*"]
-			}
+				"all": true
+			},
+      "window": {
+        "all": true
+      }
     },
     "bundle": {
       "active": true,
@@ -41,14 +35,15 @@
       "identifier": "com.tauri.build",
       "targets": "all",
       "resources": [
-        "./data",
         "./expand"
       ],
       "windows": {
         "allowDowngrades": true,
         "certificateThumbprint": null,
         "digestAlgorithm": null,
-        "nsis": null,
+        "nsis": {
+          "installMode": "both"
+        },
         "timestampUrl": null,
         "tsp": false,
         "webviewFixedRuntimePath": null,

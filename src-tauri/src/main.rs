@@ -14,11 +14,21 @@ use tauri_plugin_log::{
 };
 use std::env;
 
+struct Defer<F: FnOnce()>(Option<F>);
+
+impl<F: FnOnce()> Drop for Defer<F> {
+  fn drop(&mut self) {
+    if let Some(f) = self.0.take() {
+      f()
+    }
+  }
+}
+
 fn main() {
     // 初始化写入配置文件
     let app_conf = AppConf::read().write();
     let context = tauri::generate_context!();
-    webssh::init();
+
     let mut log = tauri_plugin_log::Builder::default()
     .targets([
       LogTarget::Folder(utils::app_root()),
@@ -65,10 +75,10 @@ fn main() {
       webssh::cmd::select_ssh_main,
       webssh::cmd::select_ssh_main_dto,
       webssh::cmd::save_ssh,
-      webssh::cmd::del_ssh
+      webssh::cmd::del_ssh,
+      webssh::cmd::close_webssh
     ])
-    .setup(setup::init)
-    .menu(menu::init());
+    .setup(setup::init);
 
     if app_conf.tray {
         builder = builder.system_tray(menu::tray_menu());
@@ -85,12 +95,12 @@ fn main() {
       if let tauri::WindowEvent::CloseRequested { api, .. } = event.event() {
         let win = event.window().clone();
         let app_conf = AppConf::read();
-        if win.label() == "core" {
+        if win.label() == "main" {
           if app_conf.isinit {
             tauri::api::dialog::ask(
               Some(event.window()),
               "",
-              "Do you want to exit the application when you click the [x] button?",
+              "你确定退出程序吗？按[x]进行退出",
               move |is_ok| {
                 app_conf
                   .amend(serde_json::json!({ "isinit" : false, "main_close": is_ok }))
@@ -107,6 +117,9 @@ fn main() {
           } else {
             win.minimize().unwrap();
           }
+        } else if win.label() == "webssh"{
+          webssh::close_webssh();
+          event.window().close().unwrap();
         } else {
           event.window().close().unwrap();
         }
@@ -114,5 +127,5 @@ fn main() {
       }
     })
     .run(context)
-    .expect("error while running ChatGPT application");
+    .expect("运行complex应用失败");
 }

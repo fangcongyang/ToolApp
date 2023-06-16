@@ -1,5 +1,5 @@
 <template>
-  <div style="display: flex; flex-direction: column;height: 100vh;">
+  <div style="display: flex; flex-direction: column;height: calc(100vh - 40px);">
     <a-menu style="height: 40px;" v-model:selectedKeys="current" mode="horizontal" @click="handleClick" >
       <a-sub-menu>
         <template #icon>
@@ -13,12 +13,9 @@
       <a-menu-item key="site">
         站点管理
       </a-menu-item>
-      <a-menu-item key="/">
-        首页
-      </a-menu-item>
     </a-menu>
     <a-tabs
-      style="flex: 1;padding-top: 0.1rem;"
+      style="display: flex; flex-direction: column; flex: 1;margin-top: 0.1rem;"
       type="editable-card"
       v-model:value="activeKey"
       @edit="onEdit"

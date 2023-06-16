@@ -1,7 +1,7 @@
 [package]
-name = "tauri-app"
+name = "complex"
 version = "0.0.0"
-description = "A Tauri App"
+description = "complex"
 authors = ["you"]
 license = ""
 repository = ""
@@ -10,10 +10,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.3", features = [] }
+tauri-build = { version = "1.4", features = [] }
 
 [dependencies]
-tauri = { version = "1.3", features = ["api-all", "global-shortcut", "system-tray"] }
+tauri = { version = "1.4", features = ["api-all", "global-shortcut", "system-tray"] }
 serde = { version = "1.0", features = ["derive"] }
 tauri-plugin-positioner = { git = "https://github.com/lencx/tauri-plugins-workspace", features = ["system-tray"] }
 serde_json = "1.0"
@@ -23,7 +23,7 @@ anyhow = "1.0.66"
 reqwest = "0.11.13"
 walkdir = "2.3.2"
 dark-light = "1.0.0"
-wry = "0.24.1"
+wry = "0.24.3"
 tauri-plugin-log = { git = "https://github.com/lencx/tauri-plugins-workspace", branch = "dev", features = ["colored"] }
 tauri-plugin-autostart = { git = "https://github.com/lencx/tauri-plugins-workspace", branch = "dev" }
 tauri-plugin-window-state = { git = "https://github.com/lencx/tauri-plugins-workspace", branch = "dev" }

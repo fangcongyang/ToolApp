@@ -74,6 +74,7 @@ pub fn dalle2_window(
       )
       .title(title.unwrap_or_else(|| "DALL·E 2".to_string()))
       .resizable(true)
+      .decorations(false)
       .fullscreen(false)
       .inner_size(800.0, 600.0)
       .always_on_top(false)
@@ -92,7 +93,9 @@ pub fn dalle2_window(
 }
 
 pub mod cmd {
-  use super::*;
+  use crate::app::webssh;
+
+use super::*;
   use log::info;
   use tauri::{command, utils::config::WindowUrl, window::WindowBuilder, Manager};
 
@@ -108,18 +111,19 @@ pub mod cmd {
 
   #[tauri::command]
   pub fn control_window(handle: tauri::AppHandle) {
+    let app_conf = AppConf::read();
     tauri::async_runtime::spawn(async move {
       if handle.get_window("main").is_none() {
         WindowBuilder::new(
           &handle,
           "main",
-          WindowUrl::App("index.html?type=control".into()),
+          WindowUrl::App("index.html".into()),
         )
-        .title("Control Center")
+        .title("complex")
+        .decorations(false)
         .resizable(true)
         .fullscreen(false)
-        .inner_size(1200.0, 700.0)
-        .min_inner_size(1000.0, 600.0)
+        .inner_size(app_conf.main_width, app_conf.main_height)
         .build()
         .unwrap();
       } else {
@@ -141,6 +145,9 @@ pub mod cmd {
     info!("wa_window: {} :=> {}", title, url);
     let win = app.get_window(&label);
     if win.is_none() {
+      if label == "webssh" {
+        webssh::init()
+      }
       tauri::async_runtime::spawn(async move {
         tauri::WindowBuilder::new(&app, label, tauri::WindowUrl::App(url.parse().unwrap()))
           .initialization_script(&script.unwrap_or_default())
@@ -148,6 +155,9 @@ pub mod cmd {
           .title(title)
           .inner_size(960.0, 700.0)
           .resizable(true)
+          .decorations(false)
+          .transparent(true)
+          .center()
           .build()
           .unwrap();
       });

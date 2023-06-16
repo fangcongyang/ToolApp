@@ -8,7 +8,7 @@
           </template>
           在线工具
         </a-menu-item> 
-        <a-menu-item key="webSsh" >
+        <a-menu-item key="openNewWin" @click="wa_window('webssh', 'index.html/#/webssh')">
           <template #icon>
             <setting-outlined />
           </template>
@@ -30,25 +30,25 @@
         </a-sub-menu>
         <a-sub-menu>
           <template #icon>
-            <setting-outlined />
+            <desktop-outlined />
           </template>
           <template #title>视频VIP免费</template>
-          <a-menu-item key="movieVip">
+          <a-menu-item key="openNewWinVip1">
             <a @click="wa_window('酉灿VIP', 'https://vip.superso.top/')" target="_blank" rel="noopener noreferrer">
               酉灿VIP
             </a>
           </a-menu-item>
-          <a-menu-item key="movieVip">
+          <a-menu-item key="openNewWinVip2">
             <a @click="wa_window('骷髅村', 'https://kuloucun.com/vip/')" target="_blank" rel="noopener noreferrer">
               骷髅村
             </a>
           </a-menu-item>
-          <a-menu-item key="movieVip">
+          <a-menu-item key="openNewWinVip3">
             <a @click="wa_window('资源网站', 'https://www.watchtving.com')" target="_blank" rel="noopener noreferrer">
               资源网站
             </a>
           </a-menu-item>
-          <a-menu-item key="movieVip">
+          <a-menu-item key="openNewWinVip4">
             <a @click="wa_window('auete', 'https://auete.org/')" target="_blank" rel="noopener noreferrer">
               auete
             </a>
@@ -99,7 +99,7 @@
 <script lang="ts">
   import Greet from "./components/Greet.vue";
   import { defineComponent, ref } from 'vue';
-  import { ToolOutlined, AppstoreOutlined, SettingOutlined } from '@ant-design/icons-vue';
+  import { ToolOutlined, AppstoreOutlined, SettingOutlined, ApartmentOutlined, DesktopOutlined } from '@ant-design/icons-vue';
   import type { MenuProps } from 'ant-design-vue';
   import { useRouter } from 'vue-router';
   import { invoke } from "@tauri-apps/api/tauri";
@@ -109,18 +109,18 @@
       ToolOutlined,
       AppstoreOutlined,
       SettingOutlined,
+      ApartmentOutlined,
+      DesktopOutlined,
     },
 
     setup() {
       const router = useRouter();
       const current = ref<string[]>(['']);
       const handleClick: MenuProps['onClick'] = menuInfo => {
-        switch (menuInfo.key.toString()) {
-          case "movieVip":
-            break;
-          default:
-            router.push({ path: menuInfo.key.toString(), });
-            break;
+        if (menuInfo.key.toString().startsWith("openNewWin")) {
+          return
+        } else {
+          router.push({ path: menuInfo.key.toString(), });
         }
       };
       const wa_window = (title : string, href : string) => {
