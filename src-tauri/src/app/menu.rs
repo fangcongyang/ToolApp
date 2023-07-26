@@ -3,7 +3,7 @@ use tauri::{
   AppHandle, CustomMenuItem, Manager, SystemTray, SystemTrayEvent,
   SystemTrayMenu, SystemTrayMenuItem,
 };
-use tauri_plugin_positioner::{on_tray_event, Position, WindowExt};
+use tauri_plugin_positioner::on_tray_event;
 
 #[cfg(target_os = "macos")]
 use tauri::AboutMetadata;
