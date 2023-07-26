@@ -1,14 +1,14 @@
 use log::{error, info};
 use serde_json::Value;
 use std::{collections::BTreeMap, path::PathBuf};
-use tauri::{Manager, Theme};
+use tauri::Manager;
 
 #[cfg(target_os = "macos")]
 use tauri::TitleBarStyle;
 
 use crate::utils::{app_root, create_file, exists};
 
-pub const BUY_COFFEE: &str = "https://www.buymeacoffee.com/lencx";
+// pub const BUY_COFFEE: &str = "https://www.buymeacoffee.com/lencx";
 
 pub const APP_CONF_PATH: &str = "complex.conf.json";
 pub const CHATGPT_URL: &str = "https://chat.openai.com";
@@ -16,6 +16,7 @@ pub const UA_MOBILE: &str = "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS
 
 macro_rules! pub_struct {
   ($name:ident {$($field:ident: $t:ty,)*}) => {
+    #[allow(non_snake_case)]
     #[derive(serde::Serialize, serde::Deserialize, Debug, Clone)]
     pub struct $name {
       $(pub $field: $t),*
@@ -23,15 +24,31 @@ macro_rules! pub_struct {
   }
 }
 
+pub_struct!(SystemConf {
+  saveWindowState: bool,
+  mainWidth: f64,
+  mainHeight: f64,
+  theme: String,
+});
+
+impl SystemConf {
+  pub fn new() -> Self {
+    Self { 
+      saveWindowState: false,
+      mainWidth: 1080.0,
+      mainHeight: 720.0,
+      theme: "theme-light".into(),
+    }
+  }
+}
+
 pub_struct!(AppConf {
+  systemConf: SystemConf,
   titlebar: bool,
   hide_dock_icon: bool,
-  // macOS and Windows: light / dark / system
-  theme: String,
   // auto update policy: prompt / silent / disable
   auto_update: String,
   stay_on_top: bool,
-  save_window_state: bool,
   global_shortcut: Option<String>,
   default_origin: String,
   speech_lang: String,
@@ -43,8 +60,6 @@ pub_struct!(AppConf {
   main_dashboard: bool,
   main_origin: String,
   ua_window: String,
-  main_width: f64,
-  main_height: f64,
 
   // Tray Window
   tray_width: f64,
@@ -59,10 +74,9 @@ impl AppConf {
   pub fn new() -> Self {
     info!("conf_init");
     Self {
+      systemConf: SystemConf::new(),
       titlebar: !cfg!(target_os = "macos"),
       hide_dock_icon: false,
-      save_window_state: false,
-      theme: "light".into(),
       auto_update: "prompt".into(),
       #[cfg(target_os = "macos")]
       speech_lang: "com.apple.eloquence.en-US.Rocko".into(),
@@ -75,8 +89,6 @@ impl AppConf {
       stay_on_top: false,
       main_dashboard: true,
       tray_dashboard: false,
-      main_width: 960.0,
-      main_height: 700.0,
       tray_width: 360.0,
       tray_height: 540.0,
       main_origin: CHATGPT_URL.into(),
@@ -159,31 +171,20 @@ impl AppConf {
     }
   }
 
-  pub fn theme_mode() -> Theme {
-    match Self::get_theme().as_str() {
-      "system" => match dark_light::detect() {
-        // Dark mode
-        dark_light::Mode::Dark => Theme::Dark,
-        // Light mode
-        dark_light::Mode::Light => Theme::Light,
-        // Unspecified
-        dark_light::Mode::Default => Theme::Light,
-      },
-      "dark" => Theme::Dark,
-      _ => Theme::Light,
-    }
-  }
-
-  pub fn get_theme() -> String {
-    Self::read().theme.to_lowercase()
-  }
-
   pub fn get_auto_update(self) -> String {
     self.auto_update.to_lowercase()
   }
-
-  pub fn theme_check(self, mode: &str) -> bool {
-    self.theme.to_lowercase() == mode
+  
+  pub fn get_conf_by_name(self, conf_name: &str) -> String {
+    let val = serde_json::to_value(&self).unwrap();
+    let config: BTreeMap<String, Value> = serde_json::from_value(val).unwrap();
+    if config.contains_key(conf_name) {
+      info!("{}", serde_json::to_string(&config.get(conf_name)).unwrap());
+      serde_json::to_string(&config.get(conf_name)).unwrap()
+    } else {
+      error!("配置不存在: {}", conf_name);
+      "".into()
+    }
   }
 
   pub fn restart(self, app: tauri::AppHandle) {
@@ -212,8 +213,8 @@ pub mod cmd {
   }
 
   #[command]
-  pub fn get_theme() -> String {
-    AppConf::get_theme()
+  pub fn get_conf_by_name(conf_name: &str) -> String {
+    AppConf::read().get_conf_by_name(conf_name)
   }
 
   #[command]

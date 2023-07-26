@@ -11,17 +11,16 @@ const routes = [
     },
     {
         name: "onlineTool",
-        path: '/onlineTool',
+        path: '/onlineTool/:menuKey',
         component: () => import("../views/tool/OnlineTool.vue"),
-        redirect: '/onlineTool/pwdGenerate',
         children: [
             {
                 path: 'pwdGenerate',
-                component: () => import("../views/tool/PwdGenerate.vue")
+                component: () => import("../views/tool/part/PwdGenerate.vue")
             },
             {
                 path: 'json',
-                component: () => import("../views/tool/Json.vue")
+                component: () => import("../views/tool/part/Json.vue")
             }
         ]
     },

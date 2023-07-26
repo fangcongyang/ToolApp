@@ -3,6 +3,7 @@ use std::{
     num::NonZeroUsize,
     sync:: Mutex,
     process::Command,
+    fs::File,
     thread
 };
 use rusqlite::Connection;
@@ -12,34 +13,23 @@ use serde::{Serialize, Deserialize};
 
 pub const DBNAME: &str = "tauri";
 
-// 定义一个缓存结构体，包含一个lru缓存和一个容量
 struct Cache {
     lru: LruCache<String, Connection>,
-    capacity: usize,
 } 
 
-// 实现缓存结构体的方法
 impl Cache {
-    // 创建一个新的缓存，指定容量
     fn new(capacity: usize) -> Cache {
         Cache {
             lru: LruCache::new(NonZeroUsize::new(capacity).unwrap()),
-            capacity,
         }
     }
 
-    // 向缓存中插入一个数据库连接，如果缓存已满，淘汰最久未使用的对象
     fn put(&mut self, id: String, channel: Connection) {
         self.lru.put(id, channel);
     }
 
-    // 从缓存中获取一个数据库连接，如果存在，返回Some，否则返回None，并更新最近使用时间
     fn get(&mut self, id: String) -> Option<&Connection> {
         self.lru.get(&id)
-    }
-
-    fn get_size(&mut self) -> usize {
-        self.capacity
     }
 }
 
@@ -47,6 +37,7 @@ lazy_static! {
     static ref CACHE: Mutex<Cache> = Mutex::new(Cache::new(1));
 }
 
+#[allow(non_snake_case)]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SshMain {
     id: String,
@@ -57,6 +48,8 @@ pub struct SshMain {
     authModel: i32,
 }
 
+
+#[allow(non_snake_case)]
 #[derive(Debug, Serialize, Deserialize)]
 struct SshMainDto {
     id: String,
@@ -67,6 +60,30 @@ struct SshMainDto {
 }
 
 pub fn init() {
+    let mut path = utils::app_install_root();
+    path.pop();
+    let output = path.join("data").join("tauri.db");
+    if !utils::exists(&output) {
+        File::create(&output).unwrap();
+    }
+    let webssh_db = Connection::open(output).unwrap();
+    // 在数据库中创建两个表
+    webssh_db.execute(
+        "create table if not exists ssh_main (
+            id TEXT(32) NOT NULL  , --主键id
+            ip_addr TEXT(15) NOT NULL  , --ip地址
+            port TEXT(5) NOT NULL  , --端口
+            username TEXT(50) NOT NULL  , --用户名
+            password TEXT(100) NOT NULL  , --密码
+            auth_model INTEGER(2) NOT NULL  DEFAULT 1, --连接模式;1 密码模式 2 证书模式
+            PRIMARY KEY (id)
+        )",
+        (),
+    ).unwrap();
+    CACHE.lock().unwrap().put(DBNAME.into(), webssh_db);
+}
+
+pub fn init_webssh() {
     // 创建一个新线程, 启动后端
     thread::spawn(move || {
         // 创建一个 Command 对象，传入 exe 文件的路径和可选的参数
@@ -88,24 +105,6 @@ pub fn init() {
             println!("关闭webssh后端:{}", s);
         }
       });
-    let mut path = utils::app_install_root();
-    path.pop();
-    let output = path.join("data").join("tauri.db");
-    let webssh_db = Connection::open(output).unwrap();
-    // 在数据库中创建两个表
-    webssh_db.execute(
-        "create table if not exists ssh_main (
-            id TEXT(32) NOT NULL  , --主键id
-            ip_addr TEXT(15) NOT NULL  , --ip地址
-            port TEXT(5) NOT NULL  , --端口
-            username TEXT(50) NOT NULL  , --用户名
-            password TEXT(100) NOT NULL  , --密码
-            auth_model INTEGER(2) NOT NULL  DEFAULT 1, --连接模式;1 密码模式 2 证书模式
-            PRIMARY KEY (id)
-        )",
-        (),
-    ).unwrap();
-    CACHE.lock().unwrap().put(DBNAME.into(), webssh_db);
 }
 
 pub fn close_webssh() {
@@ -130,7 +129,7 @@ pub fn close_webssh() {
 
 pub mod cmd {
     use super::*;
-    use rusqlite::{params};
+    use rusqlite::params;
     use tauri::command;
     use uuid::Uuid;
 
@@ -224,6 +223,11 @@ pub mod cmd {
         let mut binding = CACHE.lock().unwrap();
         let conn = binding.get(DBNAME.into()).unwrap();
         conn.execute("DELETE FROM ssh_main WHERE id = ?1", params![&id]).unwrap();
+    }
+
+    #[command]
+    pub fn init_webssh() {
+        super::init_webssh();
     }
 
     #[command]

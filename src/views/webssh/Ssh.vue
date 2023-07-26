@@ -36,7 +36,7 @@
     lineHeight: 1.0,
     cursorBlink: true,
     cursorStyle: 'block', // 光标样式 'block' | 'underline' | 'bar'
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: "Monaco, Menlo, Consolas, 'Courier New', monospace",
     theme: {
       background: '#181d28'
@@ -63,9 +63,8 @@
   
   const initTerm = () => {
     term.value = new Terminal(option);
-    term.value.open(terminal.value!)
-    term.value.loadAddon(fitAddon)
-    // this.fitAddon.fit() // 初始化的时候不要使用fit
+    term.value.loadAddon(fitAddon);
+    term.value.open(terminal.value!);
     setTimeout(() => {
       fitAddon.fit()
     }, 500); // 必须延时处理
@@ -81,10 +80,9 @@
     })
   };
   
-  
-  const onResize = debounce(() => 
-    fitAddon.fit(), 800
-  );
+  const onResize = debounce(() => {
+    fitAddon.fit();
+  }, 500);
   
   // resize 相关
   const resizeRemoteTerminal = () => {
@@ -114,8 +112,6 @@
     
     ws.onmessage = (res: { data: any; }) => {
       const data = res.data
-      // console.log("receive: " + data)
-      // 第一次连接成功将 initText 清空
       if (state.first) {
         state.first = false
         term.value!.reset()
@@ -128,14 +124,14 @@
 
   const onTerminalResize = () => {
     window.addEventListener("resize", onResize);
-    term.value!.onResize(resizeRemoteTerminal)
+    term.value!.onResize(resizeRemoteTerminal);
   }
 
   const removeResizeListener = () => {
     window.removeEventListener("resize", onResize);
   }
 
-  defineExpose({ onResize });
+  defineExpose({ onResize, resizeRemoteTerminal });
 
   onMounted(() => {
     initTerm();

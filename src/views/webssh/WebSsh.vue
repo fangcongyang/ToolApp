@@ -1,46 +1,54 @@
 <template>
-  <div style="display: flex; flex-direction: column;height: calc(100vh - 40px);">
-    <a-menu style="height: 40px;" v-model:selectedKeys="current" mode="horizontal" @click="handleClick" >
-      <a-sub-menu>
-        <template #icon>
-          <setting-outlined />
-        </template>
-        <template #title>站点</template>
-        <a-menu-item-group title="站点列表">
-          <a-menu-item v-for="serverInfo in serverInfoDtoList" :key="serverInfo.id">{{ serverInfo.hostAddr }}</a-menu-item>
-        </a-menu-item-group>
-      </a-sub-menu>
-      <a-menu-item key="site">
-        站点管理
-      </a-menu-item>
-    </a-menu>
-    <a-tabs
-      style="display: flex; flex-direction: column; flex: 1;margin-top: 0.1rem;"
-      type="editable-card"
-      v-model:value="activeKey"
-      @edit="onEdit"
-      @change="onChange"
+  <div class="main-content">
+    <el-menu
+      :default-active="current"
+      mode="horizontal"
+      :ellipsis="false"
+      @select="handleClick"
     >
-      <a-tab-pane
-        v-for="tab in tabs"
-        :key="tab.key"
-        :tab="tab.title"
-        :closable="tab.closable"
-      >
-        <KeepAlive>
-          <component :is="tab.component" :serverInfo="currServerInfo" :key="tab.key" ref="sshRef"/>
-        </KeepAlive>
-      </a-tab-pane>
-    </a-tabs>
-    <a-modal
-      width="11rem"
+      <el-menu-item index="_logo">LOGO</el-menu-item>
+      <div class="flex-grow" />
+      <el-sub-menu index="_site-menu">
+        <template #title>站点</template>
+        <el-menu-item-group title="站点列表">
+          <el-menu-item v-for="serverInfo in serverInfoDtoList" :index="serverInfo.id">{{ serverInfo.hostAddr }}</el-menu-item>
+        </el-menu-item-group>
+      </el-sub-menu>
+      <el-menu-item index="site">站点管理</el-menu-item>
+    </el-menu>
+    <div class="menu-content">
+      <div class="part">
+        <div class="part-content">
+          <el-tabs
+            v-model="activeKey"
+            closable
+            @tab-remove="removeTab"
+            @change="onChange"
+          >
+            <el-tab-pane
+              v-for="tab in tabs"
+              :key="tab.key"
+              :label="tab.title"
+              :name="tab.key"
+              :closable="tab.closable"
+            >
+              <div class="pane-item">
+                <KeepAlive>
+                  <component :is="tab.component" :serverInfo="currServerInfo" :key="tab.key" ref="sshRef"/>
+                </KeepAlive>
+              </div>
+            </el-tab-pane>
+          </el-tabs>
+        </div>
+      </div>
+    </div>
+    <el-dialog
+      width="10rem"
       title="站点管理"
-      v-model:visible="siteShow"
-      :centered="true"
-      :footer="null"
+      v-model="siteShow"
       :afterClose="selectSshMainDto"
     >
-      <a-card title="新增站点">
+      <el-card header="新增站点">
         <a-form :labelCol="{span: 7,}" :model="serverInfoForm">
           <a-row :gutter="24">
             <a-col :span="8">
@@ -70,53 +78,39 @@
             </a-col>
           </a-row>
         </a-form>
-      </a-card>
-      <a-card title="站点列表">
-        <a-table :dataSource="serverInfoList" :columns="columns" :pagination="false">
-          <template  #bodyCell="{ column, record }">
-            <template v-if="column.key === 'action'">
+      </el-card>
+      <el-card header="站点列表">
+        <el-table :data="serverInfoList" :columns="columns" :pagination="false">
+          <el-table-column prop="ipAddr" label="IP地址" column-key="ipAddr"/>
+          <el-table-column prop="port" label="端口" column-key="port"/>
+          <el-table-column prop="username" label="用户名" column-key="username"/>
+          <el-table-column prop="password" label="密码" column-key="password"/>
+          <el-table-column label="操作">
+            <template #default="scope">
               <span>
-                <a @click="editSshMain(record)">编辑</a>
-                <a-divider type="vertical" />
-                <a @click="delSelectSshMain(record.id)">删除</a>
+                <a @click="editSshMain(scope.record)">编辑</a>
+                <el-divider direction="vertical" />
+                <a @click="delSelectSshMain(scope.record.id)">删除</a>
               </span>
             </template>
-          </template>
-        </a-table>
-      </a-card>
-    </a-modal>
+          </el-table-column>
+        </el-table>
+      </el-card>
+    </el-dialog>
   </div>
 </template>
   
 <script lang="ts">
-  import { defineComponent, toRefs, ref, reactive, onMounted, UnwrapRef, toRaw  } from 'vue';
+  import { defineComponent, toRefs, ref, reactive, onMounted, UnwrapRef, toRaw, onBeforeMount  } from 'vue';
   import { useRouter } from 'vue-router';
-  import type { MenuProps } from 'ant-design-vue';
+  import { message } from 'ant-design-vue';
   import { invoke } from "@tauri-apps/api/tauri";
   import Ssh from "./Ssh.vue";
   import { Tab, ServerInfo, ServerInfoDto } from './webssh';
+  import { useCoreStore } from "../../store";
+  import { storeToRefs } from 'pinia';
 
   const columns = [
-    {
-      title: 'IP地址',
-      dataIndex: 'ipAddr',
-      key: 'ipAddr',
-    },
-    {
-      title: '端口',
-      dataIndex: 'port',
-      key: 'port',
-    },
-    {
-      title: '用户名',
-      key: 'username',
-      dataIndex: 'username',
-    },
-    {
-      title: '密码',
-      key: 'password',
-      dataIndex: 'password',
-    },
     {
       title: '操作',
       key: 'action',
@@ -128,6 +122,10 @@
     },
     setup() {
       const router = useRouter();
+      const coreStore = useCoreStore();
+      const { initWebssh } = coreStore;
+      const { init } = storeToRefs(coreStore);
+
       const serverInfoForm: UnwrapRef<ServerInfo> = reactive({
         id: "",
         ipAddr: "",
@@ -148,7 +146,7 @@
       const serverMap = ref<Map<string, ServerInfoDto>>(new Map());
       const currServerInfo = ref<ServerInfoDto | null>(null);
       const sshRef = ref<Array<InstanceType<typeof Ssh>>>([]);
-      const current = ref("");
+      const current = ref<String>("");
       
       async function selectSshMainDto() {
         let serverInfoListStr:string = await invoke("select_ssh_main_dto", {});
@@ -164,41 +162,54 @@
       }
 
       const addTab = (key: string) => {
+        if (!init.value.websshInit) {
+          message.warning({
+            content: () => 'webssh后端未启动，请重启服务',
+            style: {
+              marginTop: '20vh',
+            },
+          });
+          return
+        }
         let serverInfo = serverMap.value.get(key);
         currServerInfo.value = serverInfo!;
+        const tabKey = crypto.randomUUID();
         tabs.value.push({
-          key: crypto.randomUUID(),
+          key: tabKey,
           title: serverInfo!.hostAddr,
           closable: true,
           component: `ssh`, // 绑定新的组件名
         });
-        state.activeKey = serverInfo!.id;
+        state.activeKey = tabKey;
       };
       
-      const handleClick: MenuProps['onClick'] = menuInfo => {
-        switch (menuInfo.key.toString()) {
+      const handleClick = (key: string, keyPath: string[]) => {
+        switch (key) {
           case "site":
             selectSshMain();
             state.siteShow = true;
             break;
           case "/":
-            router.push({ path: menuInfo.key.toString(), });
+            router.push({ path: key, });
+            break;
+          case "_logo":
+          case "_site-menu":
             break;
           default:
-            addTab(menuInfo.key.toString());
+            addTab(key);
         }
       };
 
-      const removeTab = (targetKey: string) => {
+      const removeTab = (targetName: string) => {
         let lastIndex = 0;
         tabs.value.forEach((tab, i) => {
-          if (tab.key === targetKey) {
+          if (tab.key === targetName) {
             lastIndex = i - 1;
           }
         });
-        const newTabs = tabs.value.filter((tab) => tab.key !== targetKey);
+        const newTabs = tabs.value.filter((tab) => tab.key !== targetName);
         tabs.value = newTabs;
-        if (newTabs.length && state.activeKey === targetKey) {
+        if (newTabs.length && state.activeKey === targetName) {
           if (lastIndex >= 0) {
             state.activeKey = newTabs[lastIndex].key;
           } else {
@@ -207,21 +218,22 @@
         }
       };
 
-      const onEdit = (targetKey: any, action: string) => {
-        if (action === "remove") {
-          removeTab(targetKey);
-        }
-      };
-
       const onChange = (key: string) => {
         state.activeKey = key;
         tabs.value.forEach((tab, i) => {
           if (tab.key === key) {
             let arr:Array<InstanceType<typeof Ssh>> = sshRef.value!;
-            arr[i].onResize();
+            if (arr[i]) {
+              arr[i].onResize();
+              arr[i].resizeRemoteTerminal();
+            }
           }
         });
       };
+      
+      onBeforeMount(() => {
+        initWebssh();
+      })
 
       onMounted(() => {
         selectSshMainDto();
@@ -254,7 +266,7 @@
 
       return {
         ...toRefs(state),
-        onEdit,
+        removeTab,
         onChange,
         current,
         handleClick,
@@ -272,13 +284,7 @@
       }
     }
   });
-  //
   </script>
-<style lang="css">
-  .ant-tabs-content {
-    height: 100% !important;
-  }
-</style>
   
   
   

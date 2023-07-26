@@ -1,25 +1,79 @@
 <template>
-  <div style="height: 100%; display: flex; flex-direction: column;">
-    <div data-tauri-drag-region style="display: flex; flex-direction: row-reverse; height: 40px; background-color: #F0F2F5;">
-      <WinTool :minimizable="true" :maximizable="true" :closable="true"/>
+  <el-config-provider :locale="local">
+    <div id="main" :class="systemConf.theme">
+      <div class="main-body">
+        <WinTool data-tauri-drag-region :minimizable="true" :maximizable="true" :closable="true"/>
+        <RouterView />
+      </div>
     </div>
-    <div style="display: flex;flex: 1; flex-direction: column; border-radius: 30px;">
-      <RouterView />
-    </div>
-  </div>
+  </el-config-provider>
 </template>
 
 <script lang="ts">
-  import { defineComponent } from 'vue';
+  import { defineComponent, onBeforeMount, watch, ref } from 'vue';
+  import { ElConfigProvider } from "element-plus";
   import WinTool from "./components/WinTool.vue";
   import { RouterView } from 'vue-router';
-  
+  import { useCoreStore } from "@/store";
+  import { storeToRefs } from "pinia";
+  import { useDark, useToggle } from "@vueuse/core";
+  import zhCn from 'element-plus/es/locale/lang/zh-cn'
+
   export default defineComponent({
     components: {
-      WinTool
+      WinTool,
+      ElConfigProvider,
     },
     setup() {
+      const coreStore = useCoreStore();
+      const { getSystemConf } = coreStore;
+      const { systemConf } = storeToRefs(coreStore);
 
-    }
+      const local = ref(zhCn);
+      const isDark = useDark();
+      const toggleDark = useToggle(isDark);
+
+      const initTheme = () => {
+        if (systemConf.value.theme == "theme-dark") {
+          isDark.value = false;
+        } else {
+          isDark.value = true;
+        }
+        toggleDark();
+      }
+      
+      onBeforeMount(async () => {
+        await getSystemConf();
+        initTheme();
+      })
+
+      watch(() => systemConf.value.theme, 
+      () => {
+        initTheme();
+      });
+
+      return {
+        local,
+        systemConf,
+      }
+    },
   })
 </script>
+<style lang="scss">
+#main {
+  overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  .main-body {
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+</style>

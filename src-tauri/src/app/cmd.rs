@@ -4,21 +4,6 @@ use std::{fs, path::PathBuf};
 use tauri::{api, command, AppHandle, Manager};
 
 #[command]
-pub fn drag_window(app: AppHandle) {
-  app.get_window("core").unwrap().start_dragging().unwrap();
-}
-
-#[command]
-pub fn fullscreen(app: AppHandle) {
-  let win = app.get_window("core").unwrap();
-  if win.is_fullscreen().unwrap() {
-    win.set_fullscreen(false).unwrap();
-  } else {
-    win.set_fullscreen(true).unwrap();
-  }
-}
-
-#[command]
 pub fn download(app: AppHandle, name: String, blob: Vec<u8>) {
   let win = app.app_handle().get_window("core");
   let path = utils::app_root().join(PathBuf::from(name));

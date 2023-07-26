@@ -1,40 +1,33 @@
 <template>
-  <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: center; width: 100%;">
-    <div style="display: flex; flex-direction: row; width: 100%;">
-      <div style="flex: 0.1;"></div>
-      <a-tabs style="flex: 0.8;" :tabBarGutter="30" v-model:activeKey="activeKey" @change="tabChange">
-        <a-tab-pane key="json" tab="JSON格式化">
-          <div style="display: flex; flex-direction: column; justify-items: center; justify-content: space-between; height: 6.7rem;">
-            <a-space :size="spaceSize">
-              <a-textarea style="width: 9rem;height: 2.5rem;" v-model:value="json.oldValue" placeholder="放入json原文" allow-clear />
-            </a-space>
-            <div style="display: flex; flex-direction: column; justify-content: space-between; height: 1rem;">
-              <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
-                <a-space :size="spaceSize">
-                  <span style="font-size: medium; font-weight: bold;">缩进量：</span>
-                  <a-input-number v-model:value="json.indent" :min="2" :max="8" placeholder="请输入缩进量"
-                    style="width: 1rem;" />
-                  <a-radio v-model:checked="json.mark" @click="changeMark">引号</a-radio>
-                </a-space>
-              </div>
-              <div style="display: flex; justify-content: space-between; width: 8rem;">
-                <a-button @click="escapeJson('1')">JSON转义</a-button>
-                <a-button @click="escapeJson('2')">去除转义</a-button>
-                <a-button @click="formatJson">格式化JSON</a-button>
-                <a-button @click="compressJson">压缩JSON</a-button>
-                <a-button @click="copyCmData">复制结果</a-button>
-                <a-button @click="clearCmData">清空</a-button>
-              </div>
+  <div class="part">
+    <div class="part-content">
+      <el-tabs v-model="activeKey" @tab-change="tabChange">
+        <el-tab-pane name="json" label="JSON格式化">
+          <div class="pane-item">
+            <a-textarea :rows="6" v-model:value="json.oldValue" placeholder="放入json原文" allow-clear />
+            <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-top: 10px;">
+              <el-space wrap :size="spaceSize">
+                <span style="font-weight: bold;">缩进量：</span>
+                <a-input-number v-model:value="json.indent" :min="2" :max="8" placeholder="请输入缩进量"
+                  style="width: 1rem;" />
+                <a-radio v-model:checked="json.mark" @click="changeMark">引号</a-radio>
+                <el-button @click="escapeJson('1')">JSON转义</el-button>
+                <el-button @click="escapeJson('2')">去除转义</el-button>
+                <el-button @click="formatJson">格式化JSON</el-button>
+                <el-button @click="compressJson">压缩JSON</el-button>
+                <el-button @click="copyCmData">复制结果</el-button>
+                <el-button @click="clearCmData">清空</el-button>
+              </el-space>
             </div>
-            <div>
-              <Codemirror v-model="json.newData" placeholder="Code gose here..." :style="{ height: '3rem',  width: '9rem'}" 
+            <div class="pane-part-code">
+              <Codemirror v-model="json.newData" placeholder="Code gose here..." :style="{ height: '100%',  width: '100%'}" 
                 :autofocus="true"
                 :indent-with-tab="true"
                 :tabSize="json.indent" :extensions="extensions" />
             </div>
           </div>
-        </a-tab-pane>
-      </a-tabs>
+        </el-tab-pane>
+      </el-tabs>
     </div>
   </div>
 </template>
@@ -46,13 +39,13 @@
   import { oneDark } from "@codemirror/theme-one-dark";
   import { defineComponent, ref, reactive, toRefs } from 'vue';
   
-  const spaceSize = 8;
+  const spaceSize = 4;
   const extensions = [
     json(), 
     oneDark, 
     keymap.of([indentWithTab]), 
     EditorView.editable.of(false),
-    ];
+  ];
   export default defineComponent({
     components: {
       Codemirror
@@ -74,7 +67,8 @@
         },
         indeterminate: true,
         checkAll: false,
-        cmData: ""
+        cmData: "",
+        activeKey: "json",
       });
       
       const compressJson = () => {
@@ -139,7 +133,6 @@
 
       return {
         ...toRefs(state),
-        activeKey: ref('json'),
         spaceSize,
         compressJson,
         extensions,
@@ -154,5 +147,8 @@
   });
 </script>
 
-<style scoped lang="css"> 
+<style lang="css"> 
+.ant-tabs-content {
+    height: 100% !important;
+  }
 </style>

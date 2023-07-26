@@ -10,7 +10,7 @@ use std::{
   env
 };
 // use tauri::updater::UpdateResponse;
-use tauri::{utils::config::Config, Manager};
+use tauri::Manager;
 
 pub fn app_root() -> PathBuf {
   tauri::api::path::home_dir().unwrap().join(".complex")
@@ -18,12 +18,6 @@ pub fn app_root() -> PathBuf {
 
 pub fn app_install_root() -> PathBuf {
   env::current_exe().expect("failed to get current exe path")
-}
-
-pub fn get_tauri_conf() -> Option<Config> {
-  let config_file = include_str!("../tauri.conf.json");
-  let config: Config = serde_json::from_str(config_file).expect("failed to parse tauri.conf.json");
-  Some(config)
 }
 
 pub fn exists(path: &Path) -> bool {
