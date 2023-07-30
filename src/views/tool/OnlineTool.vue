@@ -9,7 +9,7 @@
     >
       <el-menu-item>LOGO</el-menu-item>
       <div class="flex-grow" />
-      <el-menu-item index="/onlineTool/pwdGenerate/pwdGenerate">密码生成</el-menu-item>
+      <el-menu-item index="/onlineTool/generate/generate">在线生成</el-menu-item>
       <el-menu-item index="/onlineTool/json/json">JSON工具</el-menu-item>
     </el-menu>
     <div class="menu-content">
@@ -28,7 +28,7 @@
     setup() {
       const router = useRouter();
       const route = useRoute();
-      const activeMenu = ref<string>("/onlineTool/pwdGenerate/pwdGenerate");
+      const activeMenu = ref<string>("/onlineTool/generate/generate");
 
       const handleClick = (key: string, keyPath: string[]) => {
         if (key == "logo") {

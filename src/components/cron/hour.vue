@@ -1,125 +1,191 @@
-<template lang="html">
+<template>
   <div :val="value_">
-    <ta-radio-group v-model="type">
-        <div>
-            <ta-radio value="1">每时</ta-radio>
-        </div>
-        <div style="margin-top: 10px;">
-            <ta-radio value="2">周期</ta-radio>
-            <span style="margin-left: 10px; margin-right: 5px;">从</span>
-            <ta-input-number @change="type = '2'" v-model="cycle.start" :min="0" :max="23" style="width: 100px;"></ta-input-number>
-            <span style="margin-left: 5px; margin-right: 5px;">至</span>
-            <ta-input-number @change="type = '2'" v-model="cycle.end" :min="2" :max="23" style="width: 100px;"></ta-input-number>
-            时
-        </div>
-        <div style="margin-top: 10px;">
-            <ta-radio value="3">循环</ta-radio>
-            <span style="margin-left: 10px; margin-right: 5px;">从</span>
-            <ta-input-number @change="type = '3'" v-model="loop.start" :min="0" :max="23" style="width: 100px;"></ta-input-number>
-            <span style="margin-left: 5px; margin-right: 5px;">时开始，每</span>
-            <ta-input-number @change="type = '3'" v-model="loop.end" :min="1" :max="23" style="width: 100px;"></ta-input-number>
-            时执行一次
-        </div>
-        <div style="display:flex;margin-top: 10px;">
-            <ta-radio value="4">指定</ta-radio>
-            <ta-checkbox-group @change="(value) => {type ='4'; appoint = value}" :value="appoint" style="width: 600px;">
-                <ta-row v-for="i in 3" :key="i" >
-                    <ta-col :span="2" v-for="j in 10" :key="j" v-if="parseInt((i - 1) + '' + (j - 1)) < 24">
-                        <ta-checkbox :value="(i - 1) * 10 + (j - 1) + ''">{{(i - 1) + '' + (j - 1)}}</ta-checkbox>
-                    </ta-col>
-                </ta-row>
-            </ta-checkbox-group>
-        </div>
-    </ta-radio-group>
+    <el-radio-group v-model="type" class="cron-item">
+      <div>
+        <el-radio label="1">每时</el-radio>
+      </div>
+      <div class="item">
+        <el-radio label="2" size="small">周期</el-radio>
+        <span style="margin-right: 5px">从</span>
+        <el-input-number
+          @change="type = '2'"
+          v-model="cycle.start"
+          :min="0"
+          :max="cycle.end"
+          controls-position="right"
+          style="width: 100px"
+        ></el-input-number>
+        <span style="margin-left: 5px; margin-right: 5px">至</span>
+        <el-input-number
+          @change="type = '2'"
+          v-model="cycle.end"
+          :min="cycle.start + 1"
+          :max="23"
+          controls-position="right"
+          style="width: 100px"
+        ></el-input-number>
+        <span style="margin-left: 5px;">
+          时循环执行
+        </span>
+      </div>
+      <div class="item">
+        <el-radio label="3" size="small">循环</el-radio>
+        <span style="margin-right: 5px">从</span>
+        <el-input-number
+          @change="type = '3'"
+          v-model="loop.start"
+          :min="0"
+          :max="23"
+          controls-position="right"
+          style="width: 100px"
+        ></el-input-number>
+        <span style="margin-left: 5px; margin-right: 5px">时开始，每</span>
+        <el-input-number
+          @change="type = '3'"
+          v-model="loop.end"
+          :min="1"
+          :max="23"
+          controls-position="right"
+          style="width: 100px"
+        ></el-input-number>
+        <span style="margin-left: 5px;">
+          时执行一次
+        </span>
+      </div>
+      <div style="display: flex; margin-top: 10px">
+        <el-radio label="4" size="small">指定</el-radio>
+        <el-checkbox-group
+          @change="
+            (value: string[]) => {
+              type = '4';
+            }
+          "
+          v-model="appoint"
+          style="width: 600px"
+        >
+          <el-row v-for="i in 3" :key="i">
+            <template v-for="j in 10" :key="i + '_col'">
+              <el-col
+                :span="2"
+                :key="j"
+                v-if="parseInt(i - 1 + '' + (j - 1)) < 24"
+              >
+                <el-checkbox :key="(i - 1) * 10 + (j - 1) + ''" :label="(i - 1) * 10 + (j - 1) + ''">{{
+                  i - 1 + "" + (j - 1)
+                }}</el-checkbox>
+              </el-col>
+            </template>
+          </el-row>
+        </el-checkbox-group>
+      </div>
+    </el-radio-group>
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import {
+  defineComponent,
+  watch,
+  computed,
+  ref,
+  reactive,
+  toRefs,
+  onBeforeMount,
+} from "vue";
+export default defineComponent({
+  name: "hour",
   props: {
-    value: {
+    modelValue: {
       type: String,
-      default: '*'
-    }
+      default: "*",
+    },
   },
-  data () {
-    return {
-      type: '1', // 类型
-      cycle: { // 周期
+
+  setup(props, { emit }) {
+    const hourData = reactive({
+      type: "1", // 类型
+      cycle: {
+        // 周期
         start: 0,
-        end: 2
+        end: 2,
       },
-      loop: { // 循环
+      loop: {
+        // 循环
         start: 0,
-        end: 1
+        end: 1,
       },
-      appoint: [] // 指定
-    }
-  },
-  computed: {
-    value_ () {
+    });
+    const appoint = ref<Array<String>>([]);
+    const value_ = computed(() => {
       let result = []
-      switch (this.type) {
+      switch (hourData.type) {
         case '1': // 每秒
           result.push('*')
           break
         case '2': // 年期
-          result.push(`${this.cycle.start}-${this.cycle.end}`)
+          result.push(`${hourData.cycle.start}-${hourData.cycle.end}`)
           break
         case '3': // 循环
-          result.push(`${this.loop.start}/${this.loop.end}`)
+          result.push(`${hourData.loop.start}/${hourData.loop.end}`)
           break
         case '4': // 指定
-          result.push(this.appoint.join(','))
+          result.push(appoint.value.join(','))
           break
         default: // 不指定
           result.push('?')
           break
       };
-      this.$emit('input', result.join(''))
+      emit('update:modelValue', result.join(""));
       return result.join('')
-    }
-  },
-  watch: {
-    'value' (a, b) {
-      this.updateVal()
-    }
-  },
-  methods: {
-    updateVal () {
-      if (!this.value) {
+    })
+
+    const updateVal = () => {
+      if (!props.modelValue) {
         return
       }
-      if (this.value === '?') {
-        this.type = '5'
-      } else if (this.value.indexOf('-') !== -1) { // 2周期
-        if (this.value.split('-').length === 2) {
-          this.type = '2'
-          this.cycle.start = this.value.split('-')[0]
-          this.cycle.end = this.value.split('-')[1]
+      let arr = []
+      if (props.modelValue === '?') {
+        hourData.type = '5'
+      } else if (props.modelValue.indexOf('-') !== -1) { // 2周期
+        arr = props.modelValue.split('-')
+        if (arr.length === 2) {
+          hourData.type = '2'
+          hourData.cycle.start = parseInt(arr[0])
+          hourData.cycle.end = parseInt(arr[1])
         }
-      } else if (this.value.indexOf('/') !== -1) { // 3循环
-        if (this.value.split('/').length === 2) {
-          this.type = '3'
-          this.loop.start = this.value.split('/')[0]
-          this.loop.end = this.value.split('/')[1]
+      } else if (props.modelValue.indexOf('/') !== -1) { // 3循环
+        arr = props.modelValue.split('/')
+        if (arr.length === 2) {
+          hourData.type = '3'
+          hourData.loop.start = parseInt(arr[0])
+          hourData.loop.end = parseInt(arr[1])
         }
-      } else if (this.value.indexOf('*') !== -1) { // 1每
-        this.type = '1'
+      } else if (props.modelValue.indexOf('*') !== -1) { // 1每
+        hourData.type = '1'
       } else { // *
-        this.type = '4'
-        this.appoint = this.value.split(',')
+        hourData.type = '4'
+        appoint.value = props.modelValue.split(',')
       }
     }
+
+    watch(() => props.modelValue,
+    () => updateVal());
+
+    onBeforeMount(() => {
+      updateVal();
+    })
+
+    return {
+      ...toRefs(hourData),
+      appoint,
+      value_,
+    };
   },
-  created () {
-    this.updateVal()
-  }
-}
+});
 </script>
 
 <style lang="css">
-.el-checkbox+.el-checkbox {
-    margin-left: 10px;
+.el-checkbox + .el-checkbox {
+  margin-left: 10px;
 }
 </style>

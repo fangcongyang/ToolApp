@@ -75,9 +75,14 @@
             </div>
           </div>
         </el-tab-pane>
+        <el-tab-pane name="cron" label="cron在线生成">
+          <div class="pane-cron">
+            <cronShow v-model="execTime"></cronShow>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </div>
-    <div class="part-code">
+    <div class="part-code" v-if="activeKey != 'cron'">
       <Codemirror v-model="cmData" placeholder="Code gose here..." :style="{ height: '100%',  width: '100%'}"
         :disabled="true"  
         :autofocus="true"
@@ -87,10 +92,11 @@
   </div>
 </template>
 <script lang="ts">
+  import { defineComponent, ref, reactive, toRefs } from 'vue';
   import { Codemirror } from 'vue-codemirror';
   import { javascript } from "@codemirror/lang-javascript";
   import { oneDark } from "@codemirror/theme-one-dark";
-  import { defineComponent, ref, reactive, toRefs } from 'vue';
+  import cronShow from '@/components/cronShow.vue';
 
   const pwdOptions = [
       {label: '数字', value: 0, chooseValue: "0123456789"}, 
@@ -102,6 +108,7 @@
   export default defineComponent({
     components: {
       Codemirror,
+      cronShow,
     },
     setup() {
       const state = reactive({
@@ -121,6 +128,7 @@
         spaceSize: 4,
       });
       const activeKey = ref<string>("pwdGenerate");
+      const execTime = ref<String>("");
       
       /**
        * 生成随机密码
@@ -208,7 +216,8 @@
         clearCmData,
         copyCmData,
         generateUUID,
-        tabChange
+        tabChange,
+        execTime
       };
     },
   });

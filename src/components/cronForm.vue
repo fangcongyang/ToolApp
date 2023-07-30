@@ -1,5 +1,5 @@
-<template lang="html">
-  <span>
+<template>
+  <div>
     <el-popover placement="right">
       <cron @input="changeValue" v-model="execTime" />
       <el-input
@@ -8,8 +8,9 @@
         v-model="execTime"
       />
     </el-popover>
-  </span>
+  </div>
 </template>
+
 <script lang="ts">
 import { defineComponent, watch, ref } from "vue";
 import cron from "./cron.vue";

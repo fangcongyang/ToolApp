@@ -4,8 +4,10 @@
 mod app;
 mod utils;
 mod conf;
+mod business;
 
-use app::{ cmd, menu, setup, window, webssh };
+use app::{ cmd, menu, setup, window };
+use business::{ cron, webssh };
 use conf::AppConf;
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_log::{
@@ -67,6 +69,7 @@ fn main() {
       webssh::cmd::del_ssh,
       webssh::cmd::close_webssh,
       webssh::cmd::init_webssh,
+      cron::cmd::next_trigger_time,
     ])
     .setup(setup::init);
 

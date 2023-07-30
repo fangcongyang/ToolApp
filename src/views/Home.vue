@@ -28,12 +28,12 @@
             </el-card>
           </el-col>
           <el-col :span="6">
-            <el-card shadow="hover" @click="wa_window('开发常用工具', 'index.html#/onlineTool/pwdGenerate')">
+            <el-card shadow="hover" @click="wa_window('开发常用工具', 'index.html#/onlineTool/generate')">
               <div class="home-item">
                 <SvgIcon name="generate" title="json" size="48"></SvgIcon>
                 <div>
-                  <span>密码ID生成</span>
-                  <p>密码生成，uuid生成</p>
+                  <span>在线生成</span>
+                  <p>密码生成，uuid生成，cron生成</p>
                 </div>
               </div>
             </el-card>

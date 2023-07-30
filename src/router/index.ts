@@ -15,8 +15,8 @@ const routes = [
         component: () => import("../views/tool/OnlineTool.vue"),
         children: [
             {
-                path: 'pwdGenerate',
-                component: () => import("../views/tool/part/PwdGenerate.vue")
+                path: 'generate',
+                component: () => import("../views/tool/part/Generate.vue")
             },
             {
                 path: 'json',

@@ -1,35 +1,49 @@
-<template lang="html">
+<template>
   <div :val="value_">
-    <ta-radio-group v-model="type">
-        <div>
-            <ta-radio value="1">每年</ta-radio>
-        </div>
-        <div style="margin-top: 10px;">
-            <ta-radio value="5">不指定</ta-radio>
-        </div>
-        <div style="margin-top: 10px;">
-            <ta-radio value="2">周期</ta-radio>
-            <span style="margin-left: 10px; margin-right: 5px;">从</span>
-            <ta-input-number @change="type = '2'" v-model="cycle.start" :min="2000" style="width: 100px;"></ta-input-number>
-            <span style="margin-left: 5px; margin-right: 5px;">至</span>
-            <ta-input-number @change="type = '2'" v-model="cycle.end" :min="2001" style="width: 100px;"></ta-input-number>
-            年
-        </div>
-    </ta-radio-group>
+    <el-radio-group v-model="type" class="cron-item">
+      <div>
+          <el-radio label="1">每年</el-radio>
+      </div>
+      <div class="item">
+          <el-radio label="5">不指定</el-radio>
+      </div>
+      <div class="item">
+          <el-radio label="2">周期</el-radio>
+          <span style="margin-right: 5px;">从</span>
+          <el-input-number @change="type = '2'" v-model="cycle.start" :min="2000"
+            controls-position="right"
+            style="width: 100px;"></el-input-number>
+          <span style="margin-left: 5px; margin-right: 5px;">至</span>
+          <el-input-number @change="type = '2'" v-model="cycle.end" :min="2001"
+            controls-position="right"
+            style="width: 100px;"></el-input-number>
+          <span style="margin-left: 5px;">年</span>
+      </div>
+    </el-radio-group>
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import {
+  defineComponent,
+  watch,
+  computed,
+  ref,
+  reactive,
+  toRefs,
+  onBeforeMount,
+} from "vue";
+export default defineComponent({
+  name: "year",
   props: {
-    value: {
+    modelValue: {
       type: String,
-      default: '*'
-    }
+      default: "*",
+    },
   },
-  data () {
+  setup(props, { emit }) {
     let year = new Date().getFullYear()
-    return {
+    const data = reactive({
       type: '1', // 类型
       cycle: { // 周期
         start: year,
@@ -37,81 +51,70 @@ export default {
       },
       work: 0,
       last: 0,
-      appoint: [] // 指定
-    }
-  },
-  computed: {
-    value_ () {
+    })
+    const appoint = ref<Array<String>>([]); 
+    const value_ = computed(() => {
       let result = []
-      switch (this.type) {
+      switch (data.type) {
         case '1': // 每秒
           result.push('*')
           break
         case '2': // 年期
-          result.push(`${this.cycle.start}-${this.cycle.end}`)
+          result.push(`${data.cycle.start}-${data.cycle.end}`)
           break
         case '4': // 指定
-          result.push(this.appoint.join(','))
+          result.push(appoint.value.join(','))
           break
         case '6': // 最后
-          result.push(`${this.last === 0 ? '' : this.last}L`)
+          result.push(`${data.last === 0 ? '' : data.last}L`)
           break
         default: // 不指定
           result.push('?')
           break
       };
-      this.$emit('input', result.join(''))
+      emit('update:modelValue', result.join(""));
       return result.join('')
-    }
-  },
-  watch: {
-    'value' (a, b) {
-      this.updateVal()
-    }
-  },
-  methods: {
-    updateVal () {
-      if (!this.value) {
+    })
+    
+    const updateVal = () => {
+      if (!props.modelValue) {
         return
       }
-      if (this.value === '?') {
-        this.type = '5'
-      } else if (this.value.indexOf('-') !== -1) { // 2周期
-        if (this.value.split('-').length === 2) {
-          this.type = '2'
-          this.cycle.start = this.value.split('-')[0]
-          this.cycle.end = this.value.split('-')[1]
+      let arr
+      if (props.modelValue === '?') {
+        data.type = '5'
+      } else if (props.modelValue.indexOf('-') !== -1) { // 2周期
+        arr = props.modelValue.split('-')
+        if (arr.length === 2) {
+          data.type = '2'
+          data.cycle.start = parseInt(arr[0])
+          data.cycle.end = parseInt(arr[1])
         }
-      } else if (this.value.indexOf('/') !== -1) { // 3循环
-        if (this.value.split('/').length === 2) {
-          this.type = '3'
-          this.loop.start = this.value.split('/')[0]
-          this.loop.end = this.value.split('/')[1]
-        }
-      } else if (this.value.indexOf('*') !== -1) { // 1每
-        this.type = '1'
-      } else if (this.value.indexOf('L') !== -1) { // 6最后
-        this.type = '6'
-        this.last = this.value.replace('L', '')
-      } else if (this.value.indexOf('#') !== -1) { // 7指定周
-        if (this.value.split('#').length === 2) {
-          this.type = '7'
-          this.week.start = this.value.split('#')[0]
-          this.week.end = this.value.split('#')[1]
-        }
-      } else if (this.value.indexOf('W') !== -1) { // 8工作日
-        this.type = '8'
-        this.work = this.value.replace('W', '')
+      } else if (props.modelValue.indexOf('*') !== -1) { // 1每
+        data.type = '1'
+      } else if (props.modelValue.indexOf('L') !== -1) { // 6最后
+        data.type = '6'
+        data.last = parseInt(props.modelValue.replace('L', ''))
       } else { // *
-        this.type = '4'
-        this.appoint = this.value.split(',')
+        data.type = '4'
+        appoint.value = props.modelValue.split(',')
       }
     }
-  },
-  created () {
-    this.updateVal()
+
+    watch(() => props.modelValue,
+    () => updateVal());
+
+    onBeforeMount(() => {
+      updateVal();
+    })
+
+    return {
+      ...toRefs(data),
+      appoint,
+      value_,
+    }
   }
-}
+});
 </script>
 
 <style lang="css">
