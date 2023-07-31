@@ -3,7 +3,7 @@ use std::{
     num::NonZeroUsize,
     sync:: Mutex,
     process::Command,
-    fs::File,
+    fs::{File, create_dir_all},
     thread
 };
 use rusqlite::Connection;
@@ -63,6 +63,8 @@ pub fn init() {
     let mut path = utils::app_install_root();
     path.pop();
     let output = path.join("data").join("tauri.db");
+    let prefix = output.parent().unwrap();
+    create_dir_all(prefix).unwrap();
     if !utils::exists(&output) {
         File::create(&output).unwrap();
     }
