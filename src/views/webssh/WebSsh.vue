@@ -49,35 +49,35 @@
       :afterClose="selectSshMainDto"
     >
       <el-card header="新增站点">
-        <a-form :labelCol="{span: 7,}" :model="serverInfoForm">
-          <a-row :gutter="24">
-            <a-col :span="8">
-              <a-form-item label="IP地址" required>
-                <a-input v-model:value="serverInfoForm.ipAddr" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item label="端口" required>
-                <a-input v-model:value="serverInfoForm.port" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item label="用户名" required>
-                <a-input v-model:value="serverInfoForm.username" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="8">
-              <a-form-item label="密码" required>
-                <a-input v-model:value="serverInfoForm.password" />
-              </a-form-item>
-            </a-col>
-            <a-col :span="16">
-              <a-form-item >
-                <a-button type="primary" @click="onSubmit">提交</a-button>
-              </a-form-item>
-            </a-col>
-          </a-row>
-        </a-form>
+        <el-form :labelCol="{span: 7,}" :model="serverInfoForm">
+          <el-row :gutter="24">
+            <el-col :span="8">
+              <el-form-item label="IP地址" required>
+                <el-input v-model:value="serverInfoForm.ipAddr" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="端口" required>
+                <el-input v-model:value="serverInfoForm.port" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="用户名" required>
+                <el-input v-model:value="serverInfoForm.username" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="密码" required>
+                <el-input v-model:value="serverInfoForm.password" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="16">
+              <el-form-item >
+                <el-button type="primary" @click="onSubmit">提交</el-button>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
       </el-card>
       <el-card header="站点列表">
         <el-table :data="serverInfoList" :columns="columns" :pagination="false">
@@ -103,7 +103,7 @@
 <script lang="ts">
   import { defineComponent, toRefs, ref, reactive, onMounted, UnwrapRef, toRaw, onBeforeMount  } from 'vue';
   import { useRouter } from 'vue-router';
-  import { message } from 'ant-design-vue';
+  import { ElMessage } from "element-plus";
   import { invoke } from "@tauri-apps/api/tauri";
   import Ssh from "./Ssh.vue";
   import { Tab, ServerInfo, ServerInfoDto } from './webssh';
@@ -163,12 +163,7 @@
 
       const addTab = (key: string) => {
         if (!init.value.websshInit) {
-          message.warning({
-            content: () => 'webssh后端未启动，请重启服务',
-            style: {
-              marginTop: '20vh',
-            },
-          });
+          ElMessage.warning('webssh后端未启动，请重启服务');
           return
         }
         let serverInfo = serverMap.value.get(key);

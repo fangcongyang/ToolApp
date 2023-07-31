@@ -4,13 +4,13 @@
       <el-tabs v-model="activeKey" @tab-change="tabChange">
         <el-tab-pane name="json" label="JSON格式化">
           <div class="pane-item">
-            <a-textarea :rows="6" v-model:value="json.oldValue" placeholder="放入json原文" allow-clear />
+            <el-input type="textarea" :rows="6" v-model="json.oldValue" placeholder="放入json原文" clearable />
             <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-top: 10px;">
               <el-space wrap :size="spaceSize">
                 <span style="font-weight: bold;">缩进量：</span>
-                <a-input-number v-model:value="json.indent" :min="2" :max="8" placeholder="请输入缩进量"
+                <el-input-number v-model="json.indent" :min="2" :max="8" placeholder="请输入缩进量"
                   style="width: 1rem;" />
-                <a-radio v-model:checked="json.mark" @click="changeMark">引号</a-radio>
+                <el-radio v-model:checked="json.mark" @click="changeMark">引号</el-radio>
                 <el-button @click="escapeJson('1')">JSON转义</el-button>
                 <el-button @click="escapeJson('2')">去除转义</el-button>
                 <el-button @click="formatJson">格式化JSON</el-button>

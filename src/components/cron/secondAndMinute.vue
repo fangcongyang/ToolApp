@@ -134,7 +134,6 @@ export default defineComponent({
     });
 
     const updateVal = () => {
-      console.log(props.modelValue)
       if (!props.modelValue) {
         return;
       }

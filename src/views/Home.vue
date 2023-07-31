@@ -1,6 +1,6 @@
 <template>
   <div class="main-content">
-    <el-tabs v-model="homeConf.activeMenu" @tab-click="handleClick">
+    <el-tabs v-model="homeConf.activeMenu">
       <el-tab-pane label="开发类" name="developer">
         <el-row :gutter="24">
           <el-col :span="6">
@@ -46,7 +46,6 @@
 
 <script lang="ts">
   import { defineComponent, ref } from 'vue';
-  import type { MenuProps } from 'ant-design-vue';
   import { useRouter } from 'vue-router';
   import { invoke } from "@tauri-apps/api/tauri";
   import { useCoreStore } from "@/store";
@@ -64,10 +63,6 @@
 
       const router = useRouter();
       const current = ref<string[]>(['']);
-      
-      const handleClick: MenuProps['onClick'] = menuInfo => {
-        router.push({ path: menuInfo.key.toString(), });
-      }
 
       const wa_window = (title : string, href : string) => {
         invoke('wa_window', { title: title, label: title, url: href });
@@ -75,7 +70,6 @@
 
       return {
         current,
-        handleClick,
         wa_window,
         homeConf
       }

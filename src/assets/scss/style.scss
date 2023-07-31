@@ -48,7 +48,7 @@
 }
 
 .frame{
-  width: 100%;
+  width: calc(100% - 40Px);
   height: 40Px;
   display: flex;
   user-select: none;
@@ -83,10 +83,10 @@
 
 .main-content {
   margin: 0 20Px 20Px 20Px;
-  padding: 10Px;
-  width: calc(100% - 40Px);
+  width: calc(100% - 60Px);
   height: calc(100% - 60Px);
   border-radius: 10px;
+  padding: 0 10Px;
   .flex-grow{
     flex: 1;
   }
@@ -94,6 +94,7 @@
     display: flex;
     flex-direction: row;
     height: 60Px;
+    cursor: pointer;
     div{
       padding: 0 0 0 10Px;
       span{
@@ -137,7 +138,7 @@
           justify-content: space-between; 
           width: 100%;
           height: 100%;
-          padding: 0 0 10Px 0;
+          padding: 10Px 0;
           .row {
             display: flex;
             flex-direction: row;
@@ -156,6 +157,7 @@
             display: flex; 
             width: 100%; 
             flex: 1; 
+            padding: 10Px 0 0 0;
           }
         }
       }

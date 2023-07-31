@@ -1,7 +1,7 @@
 <template>
   <div>
-    <el-input v-model="execTime" placeholder="cron表达式" />
-    <cron v-model="execTime" />
+    <span>cron表达式:</span><el-input v-model="execTime" style="width: 300Px;margin-left: 10Px;" placeholder="cron表达式" />
+    <cron v-model="execTime" style="margin-top: 10Px;" />
   </div>
 </template>
 

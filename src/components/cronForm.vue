@@ -27,7 +27,7 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    const execTime = ref<String>("");
+    const execTime = ref<string>("");
 
     //触发整体修改,触发change事件
     const changeValue = (value: string) => {
