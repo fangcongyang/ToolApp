@@ -105,9 +105,7 @@ const handleWinMax2Min = async () => {
       await appWindow.setSize(
         new LogicalSize(systemConf.value.mainWidth, systemConf.value.mainHeight)
       );
-      await appWindow.center();
     }
-    await appWindow.unmaximize();
   }
 
   data.fullscreen = !data.fullscreen;

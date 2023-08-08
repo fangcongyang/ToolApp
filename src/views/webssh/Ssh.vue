@@ -81,8 +81,10 @@
   };
   
   const onResize = debounce(() => {
-    fitAddon.fit();
-  }, 500);
+    setTimeout(() => {
+      fitAddon.fit();
+    }, 2000)
+  }, 2000);
   
   // resize 相关
   const resizeRemoteTerminal = () => {
@@ -150,10 +152,10 @@
   .ssh-container {
     overflow: hidden;
     width: 100%;
-    height: 100% !important;
-    border-radius: 4px;
+    flex: 1;
+    /* height: 100% !important; */
+    border-radius: 5Px;
     background: rgb(24, 29, 40);
-    padding: 0px;
     color: rgb(255, 255, 255);
   }
 

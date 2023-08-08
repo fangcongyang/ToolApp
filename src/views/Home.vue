@@ -38,6 +38,17 @@
               </div>
             </el-card>
           </el-col>
+          <el-col :span="6">
+            <el-card shadow="hover" @click="wa_window('开发常用工具', 'index.html#/onlineTool/generate')">
+              <div class="home-item">
+                <SvgIcon name="generate" title="json" size="48"></SvgIcon>
+                <div>
+                  <span>系统设置</span>
+                  <p>系统设置</p>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
         </el-row>
       </el-tab-pane>
     </el-tabs>
@@ -61,7 +72,6 @@
       const coreStore = useCoreStore();
       const { homeConf } = storeToRefs(coreStore);
 
-      const router = useRouter();
       const current = ref<string[]>(['']);
 
       const wa_window = (title : string, href : string) => {

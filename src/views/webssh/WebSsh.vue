@@ -7,7 +7,8 @@
       @select="handleClick"
     >
       <el-menu-item index="_logo">LOGO</el-menu-item>
-      <div class="flex-grow" />
+      <div class="flex-grow">
+      </div>
       <el-sub-menu index="_site-menu">
         <template #title>站点</template>
         <el-menu-item-group title="站点列表">

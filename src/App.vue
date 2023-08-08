@@ -61,14 +61,14 @@
 </script>
 <style lang="scss">
 #main {
-  overflow: hidden;
+  // overflow: hidden;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 
   .main-body {
     flex: 1;
-    height: 100%;
+    height: 100vh;
     width: 100%;
     display: flex;
     justify-content: flex-start;
