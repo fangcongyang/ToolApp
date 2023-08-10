@@ -24,7 +24,7 @@
             v-model="activeKey"
             closable
             @tab-remove="removeTab"
-            @change="onChange"
+            @tab-change="onChange"
           >
             <el-tab-pane
               v-for="tab in tabs"

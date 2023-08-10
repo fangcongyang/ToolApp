@@ -8,6 +8,7 @@
   import { FitAddon } from 'xterm-addon-fit';
   import 'xterm/css/xterm.css';
   import { debounce } from 'lodash'
+  import { listen } from '@tauri-apps/api/event';
 
   const sshId = crypto.randomUUID();
 
@@ -79,18 +80,18 @@
       isWsOpen() && ws.send(message("2", null, packStdin(data)))
     })
   };
-  
+
   const onResize = debounce(() => {
-    setTimeout(() => {
-      fitAddon.fit();
-    }, 2000)
-  }, 2000);
+    fitAddon.fit();
+  }, 800);
   
   // resize 相关
   const resizeRemoteTerminal = () => {
     const { cols, rows } = term.value!;
+    console.log(cols, rows);
     // 调整后端终端大小 使后端与前端终端大小一致
     isWsOpen() && ws.send(message("2", null, packResize(cols, rows)))
+    onResize();
   };
 
   // socket
@@ -124,13 +125,13 @@
     }
   };
 
-  const onTerminalResize = () => {
-    window.addEventListener("resize", onResize);
+  const onTerminalResize = async () => {
+    // window.addEventListener("resize", onResize, false);
     term.value!.onResize(resizeRemoteTerminal);
   }
 
   const removeResizeListener = () => {
-    window.removeEventListener("resize", onResize);
+    // window.removeEventListener("resize", onResize);
   }
 
   defineExpose({ onResize, resizeRemoteTerminal });
@@ -144,16 +145,15 @@
   });
 
   onBeforeUnmount(() => {
-    removeResizeListener();
     ws.close(3066, "客户端主动断开");
+    removeResizeListener();
   })
 </script>
 <style lang="css">
   .ssh-container {
     overflow: hidden;
     width: 100%;
-    flex: 1;
-    /* height: 100% !important; */
+    height: 100%;
     border-radius: 5Px;
     background: rgb(24, 29, 40);
     color: rgb(255, 255, 255);

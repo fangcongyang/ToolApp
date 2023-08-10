@@ -92,11 +92,14 @@
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, ref, reactive, toRefs } from 'vue';
+  import { defineComponent, ref, reactive, toRefs, onMounted, watch } from 'vue';
   import { Codemirror } from 'vue-codemirror';
   import { javascript } from "@codemirror/lang-javascript";
   import { oneDark } from "@codemirror/theme-one-dark";
   import cronShow from '@/components/cronShow.vue';
+  import { invoke } from "@tauri-apps/api/tauri";
+  import { useRoute } from 'vue-router';
+  import { writeText } from '@tauri-apps/api/clipboard';
 
   const pwdOptions = [
       {label: '数字', value: 0, chooseValue: "0123456789"}, 
@@ -129,6 +132,8 @@
       });
       const activeKey = ref<string>("pwdGenerate");
       const execTime = ref<String>("");
+      const routePath = "/onlineTool/generate";
+      const route = useRoute();
       
       /**
        * 生成随机密码
@@ -176,12 +181,8 @@
         state.cmData = ""
       }
 
-      const copyCmData = () => {
-        navigator.clipboard.writeText(state.cmData)
-        .then(() => {
-        })
-        .catch((err) => {
-        })
+      const copyCmData = async () => {
+        await writeText(state.cmData)
       }
 
       /**
@@ -205,7 +206,24 @@
 
       const tabChange = () => {
         state.cmData = "";
+        invoke("save_route_active_key", { path: routePath, activeKey: activeKey.value});
       }
+
+      const refreshMenu = async () => {
+        let ak = await invoke("get_route_active_key", { path: routePath});
+        if (ak) {
+          activeKey.value = ak as string;
+        }
+      }
+
+      watch(() => route.query.pathActive,
+      () => {
+        refreshMenu();
+      }, {deep: true});
+
+      onMounted(() => {
+        refreshMenu();
+      })
 
       return {
         ...toRefs(state),

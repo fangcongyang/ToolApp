@@ -11,7 +11,6 @@ use crate::utils::{app_root, create_file, exists};
 // pub const BUY_COFFEE: &str = "https://www.buymeacoffee.com/lencx";
 
 pub const APP_CONF_PATH: &str = "complex.conf.json";
-pub const CHATGPT_URL: &str = "https://chat.openai.com";
 pub const UA_MOBILE: &str = "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1";
 
 macro_rules! pub_struct {
@@ -50,7 +49,6 @@ pub_struct!(AppConf {
   auto_update: String,
   stay_on_top: bool,
   global_shortcut: Option<String>,
-  default_origin: String,
   speech_lang: String,
 
   // Main Window
@@ -58,15 +56,11 @@ pub_struct!(AppConf {
   popup_search: bool,
   main_close: bool,
   main_dashboard: bool,
-  main_origin: String,
   ua_window: String,
 
   // Tray Window
-  tray_width: f64,
-  tray_height: f64,
   tray: bool,
   tray_dashboard: bool,
-  tray_origin: String,
   ua_tray: String,
 });
 
@@ -89,11 +83,6 @@ impl AppConf {
       stay_on_top: false,
       main_dashboard: true,
       tray_dashboard: false,
-      tray_width: 360.0,
-      tray_height: 540.0,
-      main_origin: CHATGPT_URL.into(),
-      tray_origin: CHATGPT_URL.into(),
-      default_origin: CHATGPT_URL.into(),
       ua_tray: UA_MOBILE.into(),
       ua_window: "".into(),
       global_shortcut: None,

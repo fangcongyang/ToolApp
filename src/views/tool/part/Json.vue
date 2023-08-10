@@ -60,13 +60,6 @@
           mark: true,
           newData: ""
         },
-        uuidData: {
-          uuidSize: 1,
-          upper: false,
-          withSign: false,
-        },
-        indeterminate: true,
-        checkAll: false,
         cmData: "",
         activeKey: "json",
       });

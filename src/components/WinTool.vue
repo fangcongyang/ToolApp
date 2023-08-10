@@ -1,44 +1,46 @@
 <template>
   <div class="frame">
-    <span
-      class="top"
-      @click="handleAlwaysTop"
-    >
-      <SvgIcon
-        name="wintool-ontop"
-        :title="data.isAlwaysOnTop ? '取消置顶' : '置顶'"
-        :style-var="{ width: '8px', height: '14px' }"
-        :color="data.isAlwaysOnTop ? '#555555' : '#ffffff'"
-      ></SvgIcon>
-    </span>
-    <span v-if="minimizable" class="min" @click="handleWinMin">
-      <SvgIcon
-        name="wintool-min"
-        title="最小化"
-        :style-var="{ width: '8px', height: '14px' }"
-        color="#ffffff"
-      ></SvgIcon>
-    </span>
-    <span
-      v-if="maximizable && data.isResizable"
-      class="max"
-      @click="handleWinMax2Min"
-    >
-      <SvgIcon
-        name="wintool-max"
-        :title="data.isMaximized ? '还原' : '最大化'"
-        :style-var="{ width: '8px', height: '14px' }"
-        color="#ffffff"
-      ></SvgIcon>
-    </span>
-    <span v-if="closable" class="close" @click="handleWinClose">
-      <SvgIcon
-        title="关闭"
-        name="wintool-close"
-        :style-var="{ width: '8px', height: '14px' }"
-        color="#ffffff"
-      ></SvgIcon>
-    </span>
+    <div data-tauri-drag-region>
+      <span
+        class="top"
+        @click="handleAlwaysTop"
+      >
+        <SvgIcon
+          name="wintool-ontop"
+          :title="data.isAlwaysOnTop ? '取消置顶' : '置顶'"
+          :style-var="{ width: '8px', height: '14px' }"
+          :color="data.isAlwaysOnTop ? '#555555' : '#ffffff'"
+        ></SvgIcon>
+      </span>
+      <span v-if="minimizable" class="min" @click="handleWinMin">
+        <SvgIcon
+          name="wintool-min"
+          title="最小化"
+          :style-var="{ width: '8px', height: '14px' }"
+          color="#ffffff"
+        ></SvgIcon>
+      </span>
+      <span
+        v-if="maximizable && data.isResizable"
+        class="max"
+        @click="handleWinMax2Min"
+      >
+        <SvgIcon
+          name="wintool-max"
+          :title="data.isMaximized ? '还原' : '最大化'"
+          :style-var="{ width: '8px', height: '14px' }"
+          color="#ffffff"
+        ></SvgIcon>
+      </span>
+      <span v-if="closable" class="close" @click="handleWinClose">
+        <SvgIcon
+          title="关闭"
+          name="wintool-close"
+          :style-var="{ width: '8px', height: '14px' }"
+          color="#ffffff"
+        ></SvgIcon>
+      </span>
+    </div>
   </div>
 </template>
 <script lang="ts" setup>

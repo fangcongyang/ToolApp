@@ -8,7 +8,6 @@ use wry::application::accelerator::Accelerator;
 pub fn init(app: &mut App) -> std::result::Result<(), Box<dyn std::error::Error>> {
   info!("stepup");
   let app_conf = AppConf::read();
-  let url = app_conf.main_origin.to_string();
 
   if let Some(v) = app_conf.clone().global_shortcut {
     info!("global_shortcut: `{}`", v);
@@ -47,17 +46,12 @@ pub fn init(app: &mut App) -> std::result::Result<(), Box<dyn std::error::Error>
   } else {
     let app = app.handle();
     tauri::async_runtime::spawn(async move {
-      let link = if app_conf2.main_dashboard {
-        "index.html"
-      } else {
-        &url
-      };
-      info!("main_window: {}", link);
-      let main_win = WindowBuilder::new(&app, "main", WindowUrl::App(link.into()))
+      let main_win = WindowBuilder::new(&app, "main", WindowUrl::App("index.html".into()))
         .title("complex")
         .resizable(true)
         .fullscreen(false)
         .inner_size(app_conf2.systemConf.mainWidth, app_conf2.systemConf.mainHeight)
+        .min_inner_size(app_conf2.systemConf.mainWidth, app_conf2.systemConf.mainHeight)
         .center()
         .decorations(false)
         .always_on_top(app_conf2.stay_on_top)

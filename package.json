@@ -18,6 +18,7 @@
     "@vueuse/core": "^10.2.1",
     "codemirror": "^6.0.1",
     "element-plus": "^2.3.8",
+    "js-base64": "^3.7.5",
     "lib-flexible": "^0.3.2",
     "lodash": "^4.17.21",
     "pinia": "^2.0.36",

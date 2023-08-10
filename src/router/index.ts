@@ -11,7 +11,7 @@ const routes = [
     },
     {
         name: "onlineTool",
-        path: '/onlineTool/:menuKey',
+        path: '/onlineTool',
         component: () => import("../views/tool/OnlineTool.vue"),
         children: [
             {
@@ -21,6 +21,10 @@ const routes = [
             {
                 path: 'json',
                 component: () => import("../views/tool/part/Json.vue")
+            },
+            {
+                path: 'codec',
+                component: () => import("../views/tool/part/Codec.vue")
             }
         ]
     },

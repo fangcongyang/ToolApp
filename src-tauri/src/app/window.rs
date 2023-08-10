@@ -4,20 +4,25 @@ pub mod cmd {
   use tauri::{command, Manager};
 use window_shadows::set_shadow;
 
+use crate::conf::AppConf;
+
   #[command]
   pub fn wa_window(
     app: tauri::AppHandle,
     label: String,
     title: String,
-    url: String
+    url: String,
+    path: String,
   ) {
     info!("wa_window: {} :=> {}", title, url);
     let win = app.get_window(&label);
+    let app_conf = AppConf::read();
     if win.is_none() {
       tauri::async_runtime::spawn(async move {
-        let new_window = tauri::WindowBuilder::new(&app, label, tauri::WindowUrl::App(url.parse().unwrap()))
+        let new_window = tauri::WindowBuilder::new(&app, label, tauri::WindowUrl::App((url + &path).parse().unwrap()))
           .title(title)
-          .inner_size(960.0, 700.0)
+          .inner_size(app_conf.systemConf.mainWidth, app_conf.systemConf.mainHeight)
+          .min_inner_size(app_conf.systemConf.mainWidth, app_conf.systemConf.mainHeight)
           .resizable(true)
           .decorations(false)
           .center()
@@ -31,7 +36,7 @@ use window_shadows::set_shadow;
       if !v.is_visible().unwrap() {
         v.show().unwrap();
       }
-      v.eval("window.location.reload()").unwrap();
+      v.eval(&("window.location.hash = '".to_owned() + &path + "'")).unwrap();
       v.set_focus().unwrap();
     }
   }

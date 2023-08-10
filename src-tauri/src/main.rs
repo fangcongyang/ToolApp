@@ -7,7 +7,7 @@ mod conf;
 mod business;
 
 use app::{ cmd, menu, setup, window };
-use business::{ cron, webssh };
+use business::{ cron, webssh, route };
 use conf::AppConf;
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_log::{
@@ -70,6 +70,9 @@ fn main() {
       webssh::cmd::close_webssh,
       webssh::cmd::init_webssh,
       cron::cmd::next_trigger_time,
+      route::cmd::save_route_active_keys,
+      route::cmd::save_route_active_key,
+      route::cmd::get_route_active_key,
     ])
     .setup(setup::init);
 

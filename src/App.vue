@@ -2,7 +2,7 @@
   <el-config-provider :locale="local">
     <div id="main" :class="systemConf.theme">
       <div class="main-body">
-        <WinTool data-tauri-drag-region :minimizable="true" :maximizable="true" :closable="true"/>
+        <WinTool :minimizable="true" :maximizable="true" :closable="true"/>
         <RouterView />
       </div>
     </div>
